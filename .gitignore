@@ -1,0 +1,13 @@
+/Library
+/Logs
+/obj
+/Temp
+/UserSettings
+.vsconfig
+Assembly-CSharp.csproj
+Assembly-CSharp-Editor.csproj
+SRP.sln
+/.vs
+/.vscode
+Packages/packages-lock.json
+ProjectSettings/QualitySettings.asset
