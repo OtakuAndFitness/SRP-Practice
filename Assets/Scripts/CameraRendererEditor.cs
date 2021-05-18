@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Security.Cryptography;
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.Profiling;
 using UnityEngine.Rendering;
 
 partial class CameraRenderer
@@ -10,6 +11,8 @@ partial class CameraRenderer
     partial void DrawUnsupportShaders();
     partial void DrawGizmos();
     partial void PrepareForSceneWindow();
+    partial void PrepareBuffer();
+
 #if UNITY_EDITOR
     private static ShaderTagId[] legacyShaderTagIds =
     {
@@ -23,6 +26,15 @@ partial class CameraRenderer
     };
 
     static Material errorMat;
+
+    private string SampleName { get; set; }
+
+    partial void PrepareBuffer()
+    {
+        Profiler.BeginSample("Editor Only");
+        cmb.name = SampleName = camera.name;
+        Profiler.EndSample();
+    }
 
     partial void PrepareForSceneWindow()
     {
@@ -60,6 +72,8 @@ partial class CameraRenderer
         FilteringSettings fss = FilteringSettings.defaultValue;
         context.DrawRenderers(crs,ref dss, ref fss);
     }
+#else
+    const string SampleName = cmbName;
 #endif
     
 }

@@ -17,10 +17,12 @@ public partial class CameraRenderer
     CullingResults crs;
     static ShaderTagId unlitId = new ShaderTagId("SRPDefaultUnlit");
     
-    public void Render(ScriptableRenderContext context, Camera camera)
+    public void Render(ScriptableRenderContext context, Camera camera, bool useDynamicBatching, bool useGPUInstancing)
     {
         this.context = context;
         this.camera = camera;
+        
+        PrepareBuffer();
         
         PrepareForSceneWindow();
 
@@ -30,7 +32,7 @@ public partial class CameraRenderer
         }
 
         Setup();
-        DrawVisibleGeometry();
+        DrawVisibleGeometry(useDynamicBatching, useGPUInstancing);
         
         //暴露srp不支持的shader
         DrawUnsupportShaders();
@@ -58,8 +60,11 @@ public partial class CameraRenderer
     void Setup()
     {
         context.SetupCameraProperties(camera);
-        cmb.ClearRenderTarget(true,true,Color.clear);
-        cmb.BeginSample(cmbName);
+        //得到相机清除状态
+        CameraClearFlags ccfs = camera.clearFlags;
+        //设置相机清除状态
+        cmb.ClearRenderTarget(ccfs<=CameraClearFlags.Depth,ccfs == CameraClearFlags.Color,ccfs == CameraClearFlags.Color ? camera.backgroundColor.linear : Color.clear);
+        cmb.BeginSample(SampleName);
         ExecuteBuffer();//为了采样
     }
 
@@ -68,14 +73,18 @@ public partial class CameraRenderer
         context.ExecuteCommandBuffer(cmb);
         cmb.Clear();
     }
-    void DrawVisibleGeometry()
+    void DrawVisibleGeometry(bool useDynamicBatching, bool useGPUInstancing)
     {
         SortingSettings sss = new SortingSettings()
         {
             criteria = SortingCriteria.CommonOpaque
         };
         //设置渲染的pass和排序模式
-        DrawingSettings dss = new DrawingSettings(unlitId,sss);
+        DrawingSettings dss = new DrawingSettings(unlitId,sss)
+        {
+            enableDynamicBatching = useDynamicBatching,
+            enableInstancing = useGPUInstancing
+        };
         //哪些类型的渲染队列会被渲染
         FilteringSettings fss = new FilteringSettings(RenderQueueRange.opaque);
         //先渲染不透明物体
@@ -95,7 +104,7 @@ public partial class CameraRenderer
 
     void Submit()
     {
-        cmb.EndSample(cmbName);
+        cmb.EndSample(SampleName);
         ExecuteBuffer();//真正执行
         context.Submit();
     } 
