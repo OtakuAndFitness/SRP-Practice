@@ -16,6 +16,9 @@ public partial class CameraRenderer
     //摄像机剔除结果
     CullingResults crs;
     static ShaderTagId unlitId = new ShaderTagId("SRPDefaultUnlit");
+    static ShaderTagId litId = new ShaderTagId("CustomLight");
+
+    Lighting lighting = new Lighting();
     
     public void Render(ScriptableRenderContext context, Camera camera, bool useDynamicBatching, bool useGPUInstancing)
     {
@@ -32,6 +35,7 @@ public partial class CameraRenderer
         }
 
         Setup();
+        lighting.SetUp(context,crs);
         DrawVisibleGeometry(useDynamicBatching, useGPUInstancing);
         
         //暴露srp不支持的shader
@@ -85,6 +89,7 @@ public partial class CameraRenderer
             enableDynamicBatching = useDynamicBatching,
             enableInstancing = useGPUInstancing
         };
+        dss.SetShaderPassName(1,litId);
         //哪些类型的渲染队列会被渲染
         FilteringSettings fss = new FilteringSettings(RenderQueueRange.opaque);
         //先渲染不透明物体
