@@ -3,10 +3,6 @@
 
 #include "ShaderLibrary/Common.hlsl"
 
-CBUFFER_START(UnityPerMaterial)
-    // float4 _BaseColor;
-CBUFFER_END
-
 TEXTURE2D(_BaseMap);
 SAMPLER(sampler_BaseMap);
 
@@ -44,11 +40,12 @@ Varyings UnlitPassVertex(Attributes input)
 
 float4 UnlitPassFragment(Varyings input) : SV_TARGET
 {
+    UNITY_SETUP_INSTANCE_ID(input);
     float4 baseCol = SAMPLE_TEXTURE2D(_BaseMap,sampler_BaseMap,input.uv);
     float4 finalCol = UNITY_ACCESS_INSTANCED_PROP(UnityPerMaterial, _BaseColor);
     finalCol *= baseCol;
 
-    #if _CLIPPING
+    #if defined(_CLIPPING)
         float alpha = UNITY_ACCESS_INSTANCED_PROP(UnityPerMaterial, _CutOff);
         clip(finalCol.a - alpha);
     #endif

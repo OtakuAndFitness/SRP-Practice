@@ -23,6 +23,7 @@ Shader "Custom/Unlit"
             //是否写入深度
             ZWrite [_ZWrite]
             HLSLPROGRAM
+            #pragma target 3.5
             #pragma shader_feature _CLIPPING
             #pragma vertex UnlitPassVertex
             #pragma fragment UnlitPassFragment

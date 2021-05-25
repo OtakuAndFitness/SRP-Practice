@@ -1,18 +1,20 @@
-using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using Random = UnityEngine.Random;
 
 public class MeshBall : MonoBehaviour
 {
     static int baseColorId = Shader.PropertyToID("_BaseColor");
+    static int cutoffId = Shader.PropertyToID("_CutOff");
 
     [SerializeField]  
     Mesh mesh = default;
 
     [SerializeField]  
     Material mat = default;
+    
+    [SerializeField, Range(0f, 1f)]
+    float cutoff = 0.5f;
 
     Matrix4x4[] matrices = new Matrix4x4[1023];
     Vector4[] baseColors = new Vector4[1023];
@@ -35,6 +37,7 @@ public class MeshBall : MonoBehaviour
         {
             block = new MaterialPropertyBlock();
             block.SetVectorArray(baseColorId,baseColors);
+            block.SetFloat(cutoffId, cutoff);
         }
         Graphics.DrawMeshInstanced(mesh,0,mat,matrices,1023,block);
     }
