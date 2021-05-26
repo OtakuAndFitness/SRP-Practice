@@ -54,6 +54,7 @@ Varyings LitPassVertex(Attributes input)
 
 float4 LitPassFragment(Varyings input) : SV_TARGET
 {
+    UNITY_SETUP_INSTANCE_ID(input);
     float4 baseCol = SAMPLE_TEXTURE2D(_BaseMap,sampler_BaseMap,input.uv);
     float4 finalCol = UNITY_ACCESS_INSTANCED_PROP(UnityPerMaterial, _BaseColor);
     finalCol *= baseCol;
@@ -70,7 +71,11 @@ float4 LitPassFragment(Varyings input) : SV_TARGET
     sf.alpha = finalCol.a;
     sf.metallic = UNITY_ACCESS_INSTANCED_PROP(UnityPerMaterial, _Metallic);
     sf.smoothness = UNITY_ACCESS_INSTANCED_PROP(UnityPerMaterial, _Smoothness);
-    BRDF brdf = GetBRDF(sf);
+    #if defined(_PREMULTIPY_ALPHA)
+        BRDF brdf = GetBRDF(sf,true);
+    #else
+        BRDF brdf = GetBRDF(sf);
+    #endif
     float3 color = GetLighting(sf,brdf);
     return float4(color,sf.alpha);
 }

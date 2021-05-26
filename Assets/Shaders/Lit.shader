@@ -6,6 +6,7 @@ Shader "Custom/Lit"
         _BaseMap("Main Texture", 2D) = "white"{}
         _CutOff("Cut Off",Range(0.0,1.0)) = 0.5
         [Toggle(_CLIPPING)] _Clipping("Alpha Clipping", Float) = 0
+        [Toggle(_PREMULTIPY_ALPHA)] _PremultipyAlpha("Premultipy Alpha", Float) = 0
         _Metallic ("_Metallic", Range(0,1)) = 0
         _Smoothness ("_Smoothness", Range(0,1)) = 0.5 
         //设置混合模式
@@ -27,6 +28,7 @@ Shader "Custom/Lit"
             ZWrite [_ZWrite]
             HLSLPROGRAM
             #pragma shader_feature _CLIPPING
+            #pragma shader_feature _PREMULTIPY_ALPHA
             #pragma vertex LitPassVertex
             #pragma fragment LitPassFragment
             #pragma multi_compile_instancing
@@ -35,4 +37,5 @@ Shader "Custom/Lit"
             ENDHLSL
         }
     }
+    CustomEditor "CustomShaderGUI"
 }

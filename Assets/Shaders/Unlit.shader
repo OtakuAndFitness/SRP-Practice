@@ -32,4 +32,6 @@ Shader "Custom/Unlit"
             ENDHLSL
         }
     }
+    CustomEditor "CustomShaderGUI"
+
 }
