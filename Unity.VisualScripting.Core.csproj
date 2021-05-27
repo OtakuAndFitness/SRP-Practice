@@ -315,12 +315,12 @@
      <Compile Include="Library\PackageCache\com.unity.visualscripting@1.6.1\Runtime\VisualScripting.Core\Serialization\SerializeAsAttribute.cs" />
      <Compile Include="Library\PackageCache\com.unity.visualscripting@1.6.1\Runtime\VisualScripting.Core\Events\MessageListeners\MonoBehaviourMessageListeners\UnityOnCollisionExit2DMessageListener.cs" />
      <Compile Include="Library\PackageCache\com.unity.visualscripting@1.6.1\Runtime\VisualScripting.Core\Reflection\MemberInfoComparer.cs" />
+     <Compile Include="Library\PackageCache\com.unity.visualscripting@1.6.1\Runtime\VisualScripting.Core\Graphs\IGraphElementDebugData.cs" />
      <Compile Include="Library\PackageCache\com.unity.visualscripting@1.6.1\Runtime\VisualScripting.Core\Graphs\IGraphData.cs" />
      <Compile Include="Library\PackageCache\com.unity.visualscripting@1.6.1\Runtime\VisualScripting.Core\Ensure\ExceptionMessages.cs" />
      <Compile Include="Library\PackageCache\com.unity.visualscripting@1.6.1\Runtime\VisualScripting.Core\Events\MessageListeners\UIEventsInterfacesListeners\UnityOnPointerDownMessageListener.cs" />
      <Compile Include="Library\PackageCache\com.unity.visualscripting@1.6.1\Runtime\VisualScripting.Core\Reflection\TypeUtility.cs" />
      <Compile Include="Library\PackageCache\com.unity.visualscripting@1.6.1\Runtime\VisualScripting.Core\Dependencies\FullSerializer\Converters\Unity\Keyframe_DirectConverter.cs" />
-     <Compile Include="Library\PackageCache\com.unity.visualscripting@1.6.1\Runtime\VisualScripting.Core\Graphs\IGraphElementDebugData.cs" />
      <Compile Include="Library\PackageCache\com.unity.visualscripting@1.6.1\Runtime\VisualScripting.Core\Dependencies\FullSerializer\fsBaseConverter.cs" />
      <Compile Include="Library\PackageCache\com.unity.visualscripting@1.6.1\Runtime\VisualScripting.Core\Events\MessageListeners\UIEventsListeners\UnityOnScrollRectValueChangedMessageListener.cs" />
      <Compile Include="Library\PackageCache\com.unity.visualscripting@1.6.1\Runtime\VisualScripting.Core\Reflection\Optimization\InvokerBase.cs" />

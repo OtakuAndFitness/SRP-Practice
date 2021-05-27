@@ -25,12 +25,15 @@ public class Lighting
 
     CullingResults crs;
 
-    public void SetUp(ScriptableRenderContext context, CullingResults crs)
+    Shadows shadows = new Shadows();
+
+    public void SetUp(ScriptableRenderContext context, CullingResults crs, ShadowSettings shadowSettings)
     {
         this.crs = crs;
         cmb.BeginSample(cmbName);
-        // SetUpDirectionalLight();
+        shadows.SetUp(context,crs,shadowSettings);
         SetupLights();
+        shadows.Render();
         cmb.EndSample(cmbName);
         context.ExecuteCommandBuffer(cmb);
         cmb.Clear();
@@ -66,6 +69,11 @@ public class Lighting
         
         directionalColors[index] = vl.finalColor;//需要去CustomeRenderPipelinen那里设置线性颜色才是线性的
         directionalDirs[index] = -vl.localToWorldMatrix.GetColumn(2);
+        shadows.ReverseDirectionalShadows(vl.light, index);
+    }
 
+    public void CleanUp()
+    {
+        shadows.CleanUp();
     }
 }

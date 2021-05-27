@@ -20,7 +20,7 @@ public partial class CameraRenderer
 
     Lighting lighting = new Lighting();
     
-    public void Render(ScriptableRenderContext context, Camera camera, bool useDynamicBatching, bool useGPUInstancing)
+    public void Render(ScriptableRenderContext context, Camera camera, bool useDynamicBatching, bool useGPUInstancing, ShadowSettings shadowSettings)
     {
         this.context = context;
         this.camera = camera;
@@ -29,13 +29,17 @@ public partial class CameraRenderer
         
         PrepareForSceneWindow();
 
-        if (!Cull())
+        if (!Cull(shadowSettings.maxDistance))
         {
             return;
         }
-
+        cmb.BeginSample(SampleName);
+        ExecuteBuffer();
+        lighting.SetUp(context,crs,shadowSettings);
+        cmb.EndSample(SampleName);
+        
         Setup();
-        lighting.SetUp(context,crs);
+        
         DrawVisibleGeometry(useDynamicBatching, useGPUInstancing);
         
         //暴露srp不支持的shader
@@ -44,15 +48,17 @@ public partial class CameraRenderer
         //绘制Gizmos
         DrawGizmos();
 
+        lighting.CleanUp();
         //context发送的渲染命令都是缓冲的，所以要通过submit来提交命令
         Submit();
     }
 
-    bool Cull()
+    bool Cull(float maxDistance)
     {
         ScriptableCullingParameters parameters;
         if (camera.TryGetCullingParameters(out parameters))
         {
+            parameters.shadowDistance = Mathf.Min(maxDistance, camera.farClipPlane);
             crs = context.Cull(ref parameters);
             return true;
         }

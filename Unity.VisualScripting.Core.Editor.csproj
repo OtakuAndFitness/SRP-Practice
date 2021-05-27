@@ -43,10 +43,10 @@
   <ItemGroup>
      <Compile Include="Library\PackageCache\com.unity.visualscripting@1.6.1\Editor\VisualScripting.Core\Utilities\EditorTimeUtility.cs" />
      <Compile Include="Library\PackageCache\com.unity.visualscripting@1.6.1\Editor\VisualScripting.Core\Interface\Colors\SkinnedColor.cs" />
-     <Compile Include="Library\PackageCache\com.unity.visualscripting@1.6.1\Editor\VisualScripting.Core\Interface\EditorTexture.cs" />
      <Compile Include="Library\PackageCache\com.unity.visualscripting@1.6.1\Editor\VisualScripting.Core\Utilities\ProgressUtility.cs" />
      <Compile Include="Library\PackageCache\com.unity.visualscripting@1.6.1\Editor\VisualScripting.Core\Reflection\LooseAssemblyNameOptionTree.cs" />
      <Compile Include="Library\PackageCache\com.unity.visualscripting@1.6.1\Editor\VisualScripting.Core\Variables\VariableDeclarationInspector.cs" />
+     <Compile Include="Library\PackageCache\com.unity.visualscripting@1.6.1\Editor\VisualScripting.Core\Interface\EditorTexture.cs" />
      <Compile Include="Library\PackageCache\com.unity.visualscripting@1.6.1\Editor\VisualScripting.Core\Variables\VariablesAssetEditor.cs" />
      <Compile Include="Library\PackageCache\com.unity.visualscripting@1.6.1\Editor\VisualScripting.Core\Dependencies\ReorderableList\ElementAdderMenu\GenericElementAdderMenuBuilder.cs" />
      <Compile Include="Library\PackageCache\com.unity.visualscripting@1.6.1\Editor\VisualScripting.Core\Interface\Annotations\AnnotationDisabler.cs" />
@@ -478,8 +478,8 @@
      <Compile Include="Library\PackageCache\com.unity.visualscripting@1.6.1\Editor\VisualScripting.Core\Plugins\PluginMigration.cs" />
      <Compile Include="Library\PackageCache\com.unity.visualscripting@1.6.1\Editor\VisualScripting.Core\Utilities\FrameLimiterUtility.cs" />
      <Compile Include="Library\PackageCache\com.unity.visualscripting@1.6.1\Editor\VisualScripting.Core\Inspection\Primitives\DiscreteNumberInspector.cs" />
-     <Compile Include="Library\PackageCache\com.unity.visualscripting@1.6.1\Editor\VisualScripting.Core\Interface\Fuzzy\FuzzyOptionTree.cs" />
      <Compile Include="Library\PackageCache\com.unity.visualscripting@1.6.1\Editor\VisualScripting.Core\Plugin\Changelogs\LegacyLudiqGraphs\Changelog_1_2_0.cs" />
+     <Compile Include="Library\PackageCache\com.unity.visualscripting@1.6.1\Editor\VisualScripting.Core\Interface\Fuzzy\FuzzyOptionTree.cs" />
      <Compile Include="Library\PackageCache\com.unity.visualscripting@1.6.1\Editor\VisualScripting.Core\Inspection\ImplementationInspector.cs" />
      <Compile Include="Library\PackageCache\com.unity.visualscripting@1.6.1\Editor\VisualScripting.Core\Inspection\IndividualPropertyDrawer.cs" />
      <Compile Include="Library\PackageCache\com.unity.visualscripting@1.6.1\Editor\VisualScripting.Core\Context\GraphContextAttribute.cs" />
