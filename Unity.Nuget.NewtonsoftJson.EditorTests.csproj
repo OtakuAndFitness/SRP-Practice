@@ -12,11 +12,11 @@
     <ProductVersion>10.0.20506</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
     <RootNamespace></RootNamespace>
-    <ProjectGuid>{21af40fe-679e-5d38-776d-0774758ec67d}</ProjectGuid>
+    <ProjectGuid>{0b9fab2b-c7c7-f090-7c46-4d3e84127f77}</ProjectGuid>
     <ProjectTypeGuids>{E097FAD1-6243-4DAD-9C02-E9B9EFC3FFC1};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <AssemblyName>Unity.TextMeshPro.Editor.Tests</AssemblyName>
+    <AssemblyName>Unity.Nuget.NewtonsoftJson.EditorTests</AssemblyName>
     <TargetFrameworkVersion>v4.7.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <BaseDirectory>.</BaseDirectory>
@@ -41,7 +41,7 @@
     <ImplicitlyExpandDesignTimeFacades>false</ImplicitlyExpandDesignTimeFacades>
   </PropertyGroup>
   <ItemGroup>
-     <None Include="Library\PackageCache\com.unity.textmeshpro@3.0.6\Tests\Editor\Unity.TextMeshPro.Editor.Tests.asmdef" />
+     <None Include="Library\PackageCache\com.unity.nuget.newtonsoft-json@2.0.0\Tests\Editor\Unity.Nuget.NewtonsoftJson.EditorTests.asmdef" />
      <Reference Include="UnityEngine">
      <HintPath>/Applications/Unity/Hub/Editor/2021.1.17f1c1/Unity.app/Contents/Managed/UnityEngine/UnityEngine.dll</HintPath>
      </Reference>

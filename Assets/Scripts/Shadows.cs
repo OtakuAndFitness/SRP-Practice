@@ -20,7 +20,7 @@ public class Shadows
     ScriptableRenderContext context;
     ShadowSettings shadowSettings;
 
-    const int maxShadowedDirectionalLightCount = 1;
+    const int maxShadowedDirectionalLightCount = 4;
 
     struct ShadowedDirectionalLight
     {
@@ -78,6 +78,7 @@ public class Shadows
 
     void RenderDirectionalShadows()
     {
+        //创建rt, 并指定该类型是阴影贴图
         int atlasSize = (int)shadowSettings.directional.atlasSize;
         cmb.GetTemporaryRT(directionalShadowAtlasId, atlasSize, atlasSize, 32, FilterMode.Bilinear, RenderTextureFormat.Shadowmap);
         cmb.SetRenderTarget(directionalShadowAtlasId, RenderBufferLoadAction.DontCare,RenderBufferStoreAction.Store);

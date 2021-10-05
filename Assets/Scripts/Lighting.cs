@@ -67,7 +67,7 @@ public class Lighting
     {
         // Light light = RenderSettings.sun;
         
-        directionalColors[index] = vl.finalColor;//需要去CustomeRenderPipelinen那里设置线性颜色才是线性的
+        directionalColors[index] = vl.finalColor;//需要去CustomRenderPipeline那里设置线性颜色才是线性的
         directionalDirs[index] = -vl.localToWorldMatrix.GetColumn(2);
         shadows.ReverseDirectionalShadows(vl.light, index);
     }
