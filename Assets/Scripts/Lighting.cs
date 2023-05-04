@@ -32,6 +32,7 @@ public class Lighting
         this.crs = crs;
         cmb.BeginSample(cmbName);
         shadows.SetUp(context,crs,shadowSettings);
+        //发送光源数据
         SetupLights();
         shadows.Render();
         cmb.EndSample(cmbName);
@@ -50,7 +51,7 @@ public class Lighting
             if (vl.lightType == LightType.Directional)
             {
                 //VisibleLight结构比较大，不要拷贝副本了
-                SetUpDirectionalLight(count++, ref vl);
+                SetupDirectionalLight(count++, ref vl);
                 if (count >= maximumLights)
                 {
                     break;
@@ -63,7 +64,7 @@ public class Lighting
 
     }
 
-    void SetUpDirectionalLight(int index, ref VisibleLight vl)
+    void SetupDirectionalLight(int index, ref VisibleLight vl)
     {
         // Light light = RenderSettings.sun;
         

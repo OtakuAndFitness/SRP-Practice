@@ -7,12 +7,16 @@ using UnityEngine.Rendering;
 public partial class CameraRenderer
 {
     ScriptableRenderContext context;
+    
     Camera camera;
+    
     const string cmbName = "Custom Command Buffer";
+    
     CommandBuffer cmb = new CommandBuffer()
     {
         name = cmbName
     };
+    
     //摄像机剔除结果
     CullingResults crs;
     static ShaderTagId unlitId = new ShaderTagId("SRPDefaultUnlit");
@@ -92,9 +96,11 @@ public partial class CameraRenderer
         //设置渲染的pass和排序模式
         DrawingSettings dss = new DrawingSettings(unlitId,sss)
         {
+            //设置渲染时批处理的使用状态
             enableDynamicBatching = useDynamicBatching,
             enableInstancing = useGPUInstancing
         };
+        //渲染CustomLit表示的pass块
         dss.SetShaderPassName(1,litId);
         //哪些类型的渲染队列会被渲染
         FilteringSettings fss = new FilteringSettings(RenderQueueRange.opaque);
