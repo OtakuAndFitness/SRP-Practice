@@ -48,6 +48,7 @@ Shader "Custom/Lit"
             #pragma shader_feature _PREMULTIPY_ALPHA
             #pragma vertex ShadowCasterPassVertex
             #pragma fragment ShadowCasterPassFragment
+            #pragma multi_compile _ _DIRECTIONAL_PCF3 _DIRECTIONAL_PCF5 _DIRECTIONAL_PCF7
             #pragma multi_compile_instancing
             #pragma Target 3.5//排除OpenGL ES 2.0
             #include "ShadowCasterPass.hlsl"

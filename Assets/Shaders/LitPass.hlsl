@@ -69,6 +69,8 @@ float4 LitPassFragment(Varyings input) : SV_TARGET
     sf.position = input.positionWS;
     sf.normal = normalize(input.normalWS);
     sf.viewDir = normalize(_WorldSpaceCameraPos - input.positionWS);
+    //获取表面深度
+    sf.depth = -TransformWorldToView(input.positionWS).z;
     sf.color = finalCol.rgb;
     sf.alpha = finalCol.a;
     sf.metallic = UNITY_ACCESS_INSTANCED_PROP(UnityPerMaterial, _Metallic);

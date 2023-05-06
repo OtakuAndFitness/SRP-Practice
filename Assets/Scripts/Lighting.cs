@@ -75,10 +75,9 @@ public class Lighting
         
         directionalColors[index] = vl.finalColor;//需要去CustomRenderPipeline那里设置线性颜色才是线性的
         directionalDirs[index] = -vl.localToWorldMatrix.GetColumn(2);
-        shadows.ReverseDirectionalShadows(vl.light, index);
         
         //储存阴影数据
-        dirLightShadowData[index] = shadows.ReverseDirectionalShadows(vl.light, index);
+        dirLightShadowData[index] = shadows.ReserveDirectionalShadows(vl.light, index);
     }
 
     public void CleanUp()

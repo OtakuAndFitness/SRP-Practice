@@ -12,6 +12,8 @@ struct Surface
 
     //表面位置
     float3 position;
+    //表面深度
+    float depth;
 };
 
 

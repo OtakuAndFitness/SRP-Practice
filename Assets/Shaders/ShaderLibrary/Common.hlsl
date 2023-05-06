@@ -18,6 +18,12 @@ float Square(float v)
     return v*v;
 }
 
+//计算两点间距离的平方
+float DistanceSquared(float3 pA, float pB)
+{
+    return dot(pA - pB, pA - pB);
+}
+
 #include "Packages/com.unity.render-pipelines.core/ShaderLibrary/UnityInstancing.hlsl"
 #include "Packages/com.unity.render-pipelines.core/ShaderLibrary/SpaceTransforms.hlsl"
 
