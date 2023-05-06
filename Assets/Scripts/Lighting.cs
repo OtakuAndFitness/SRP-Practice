@@ -22,6 +22,8 @@ public class Lighting
     static Vector4[] directionalColors = new Vector4[maximumLights];
     static Vector4[] directionalDirs = new Vector4[maximumLights];
 
+    static int dirLightShadowDataId = Shader.PropertyToID("_DirectionalLightShadowData");
+    static Vector4[] dirLightShadowData = new Vector4[maximumLights];
 
     CullingResults crs;
 
@@ -31,7 +33,8 @@ public class Lighting
     {
         this.crs = crs;
         cmb.BeginSample(cmbName);
-        shadows.SetUp(context,crs,shadowSettings);
+        //传递阴影数据
+        shadows.Setup(context,crs,shadowSettings);
         //发送光源数据
         SetupLights();
         shadows.Render();
@@ -61,6 +64,8 @@ public class Lighting
         cmb.SetGlobalInt(mainLightCounts,count);
         cmb.SetGlobalVectorArray(mainLightColor,directionalColors);
         cmb.SetGlobalVectorArray(mainLightDir,directionalDirs);
+        
+        cmb.SetGlobalVectorArray(dirLightShadowDataId, dirLightShadowData);
 
     }
 
@@ -71,6 +76,9 @@ public class Lighting
         directionalColors[index] = vl.finalColor;//需要去CustomRenderPipeline那里设置线性颜色才是线性的
         directionalDirs[index] = -vl.localToWorldMatrix.GetColumn(2);
         shadows.ReverseDirectionalShadows(vl.light, index);
+        
+        //储存阴影数据
+        dirLightShadowData[index] = shadows.ReverseDirectionalShadows(vl.light, index);
     }
 
     public void CleanUp()
