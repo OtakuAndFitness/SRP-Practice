@@ -4,7 +4,7 @@
 #define MAX_DIRECTIONAL_LIGHTS 4
 
 CBUFFER_START(_CustomLight)
-    int _DirectionalLightCounts;
+    int _DirectionalLightCount;
     float4 _DirectionalLightColors[MAX_DIRECTIONAL_LIGHTS];
     float4 _DirectionalLightDirections[MAX_DIRECTIONAL_LIGHTS];
     //阴影数据
@@ -31,7 +31,7 @@ DirectionalShadowData GetDirectionalShadowData(int lightIndex, ShadowData shadow
 
 int GetLightCounts()
 {
-    return _DirectionalLightCounts;
+    return _DirectionalLightCount;
 }
 
 Light GetDirectionalLight(int index, Surface surfaceWS, ShadowData shadowData)

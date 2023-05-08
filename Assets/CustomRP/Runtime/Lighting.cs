@@ -13,17 +13,18 @@ public class Lighting
         name = cmbName
     };
 
-    const int maximumLights = 4;
+    const int maxDirLightCount = 4;
 
-    static int mainLightColor = Shader.PropertyToID("_DirectionalLightColors");
-    static int mainLightDir = Shader.PropertyToID("_DirectionalLightDirections");
-    static int mainLightCounts = Shader.PropertyToID("_DirectionalLightCounts");
+    static int 
+        dirLightColorId = Shader.PropertyToID("_DirectionalLightColors"),
+        dirLightDirectionsId = Shader.PropertyToID("_DirectionalLightDirections"),
+        dirLightCountId = Shader.PropertyToID("_DirectionalLightCount"),
+        dirLightShadowDataId = Shader.PropertyToID("_DirectionalLightShadowData");
 
-    static Vector4[] directionalColors = new Vector4[maximumLights];
-    static Vector4[] directionalDirs = new Vector4[maximumLights];
-
-    static int dirLightShadowDataId = Shader.PropertyToID("_DirectionalLightShadowData");
-    static Vector4[] dirLightShadowData = new Vector4[maximumLights];
+    static Vector4[] 
+        directionalColors = new Vector4[maxDirLightCount],
+        directionalDirs = new Vector4[maxDirLightCount],
+        dirLightShadowData = new Vector4[maxDirLightCount];
 
     CullingResults crs;
 
@@ -47,23 +48,23 @@ public class Lighting
     {
         NativeArray<VisibleLight> visibleLights = crs.visibleLights;
 
-        int count = 0;
+        int dirLightCount = 0;
         for (int i = 0; i < visibleLights.Length; i++)
         {
             VisibleLight vl = visibleLights[i];
             if (vl.lightType == LightType.Directional)
             {
                 //VisibleLight结构比较大，不要拷贝副本了
-                SetupDirectionalLight(count++, ref vl);
-                if (count >= maximumLights)
+                SetupDirectionalLight(dirLightCount++, ref vl);
+                if (dirLightCount >= maxDirLightCount)
                 {
                     break;
                 }
             }
         }
-        cmb.SetGlobalInt(mainLightCounts,count);
-        cmb.SetGlobalVectorArray(mainLightColor,directionalColors);
-        cmb.SetGlobalVectorArray(mainLightDir,directionalDirs);
+        cmb.SetGlobalInt(dirLightCountId,dirLightCount);
+        cmb.SetGlobalVectorArray(dirLightColorId,directionalColors);
+        cmb.SetGlobalVectorArray(dirLightDirectionsId,directionalDirs);
         
         cmb.SetGlobalVectorArray(dirLightShadowDataId, dirLightShadowData);
 
