@@ -18,11 +18,8 @@ public class Shadows
         name = cmbName
     };
 
-    ScriptableRenderContext context;
-    ShadowSettings shadowSettings;
-
     //可投射阴影的平行光数量
-    const int maxShadowedDirectionalLightCount = 4;
+    const int maxShadowedDirectionalLightCount = 4, maxCascades = 4;//最大级联数量
 
     struct ShadowedDirectionalLight
     {
@@ -40,6 +37,13 @@ public class Shadows
         "_DIRECTIONAL_PCF5",
         "_DIRECTIONAL_PCF7",
     };
+    
+    static string[] cascadeBlendKeywords =
+    {
+        "_CASCADE_BLEND_SOFT",
+        "_CASCADE_BLEND_DITHER"
+    };
+    
 
     //储存可投射阴影的可见光源的索引
     ShadowedDirectionalLight[] shadowedDirectionalLights =
@@ -48,35 +52,33 @@ public class Shadows
     //已储存的可投射阴影的平行光数量
     int ShadowedDirectionalLightCount;
     
-    static int dirShadowAtlasId = Shader.PropertyToID("_DirectionalShadowAtlas");
+    static int 
+        dirShadowAtlasId = Shader.PropertyToID("_DirectionalShadowAtlas"),
     
-    static int dirShadowMatricesId = Shader.PropertyToID("_DirectionalShadowMatrices");
+        dirShadowMatricesId = Shader.PropertyToID("_DirectionalShadowMatrices"),
     
-    static int shadowDistanceId = Shader.PropertyToID("_ShadowDistance");
+        shadowDistanceFadeId = Shader.PropertyToID("_ShadowDistanceFade"),
+        
+        shadowAtlasSizeId = Shader.PropertyToID("_ShadowAtlasSize"),
+        
+        cascadeCountId = Shader.PropertyToID("_CascadeCount"),
+        
+        cascadeCullingSpheresId = Shader.PropertyToID("_CascadeCullingSpheres"),
+        //级联数据
+        cascadeDataId = Shader.PropertyToID("_CascadeData");
     
-    static int shadowDistanceFadeId = Shader.PropertyToID("_ShadowDistanceFade");
-
-    //最大级联数量
-    const int maxCascades = 4;
     //光源的阴影转换矩阵
     static Matrix4x4[] dirShadowMatrices = new Matrix4x4[maxShadowedDirectionalLightCount * maxCascades];
     
-    static int cascadeCountId = Shader.PropertyToID("_CascadeCount");
-    static int cascadeCullingSpheresId = Shader.PropertyToID("_CascadeCullingSpheres");
-    static Vector4[] cascadeCullingSpheres = new Vector4[maxCascades];
+
+    static Vector4[] 
+        cascadeCullingSpheres = new Vector4[maxCascades],
+
+        cascadeData = new Vector4[maxCascades];
     
-    //级联数据
-    static int cascadeDataId = Shader.PropertyToID("_CascadeData");
-    static Vector4[] cascadeData = new Vector4[maxCascades];
     
-    static int shadowAtlasSizeId = Shader.PropertyToID("_ShadowAtlasSize");
-    
-    static string[] cascadeBlendKeywords =
-    {
-        "_CASCADE_BLEND_SOFT",
-        "_CASCADE_BLEND_DITHER"
-    };
-    
+    ScriptableRenderContext context;
+    ShadowSettings shadowSettings;
     CullingResults crs;
 
     public void Setup(ScriptableRenderContext context, CullingResults crs, ShadowSettings shadowSettings)
