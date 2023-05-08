@@ -1,12 +1,12 @@
 #ifndef CUSTOM_LIT_PASS_INCLUDED
 #define CUSTOM_LIT_PASS_INCLUDED
 
-#include "ShaderLibrary/Common.hlsl"
-#include "ShaderLibrary/Surface.hlsl"
-#include "ShaderLibrary/Shadows.hlsl"
-#include "ShaderLibrary/Light.hlsl"
-#include "ShaderLibrary/BRDF.hlsl"
-#include "ShaderLibrary/Lighting.hlsl"
+#include "../ShaderLibrary/Common.hlsl"
+#include "../ShaderLibrary/Surface.hlsl"
+#include "../ShaderLibrary/Shadows.hlsl"
+#include "../ShaderLibrary/Light.hlsl"
+#include "../ShaderLibrary/BRDF.hlsl"
+#include "../ShaderLibrary/Lighting.hlsl"
 
 CBUFFER_START(UnityPerMaterial)
     // float4 _BaseColor;
