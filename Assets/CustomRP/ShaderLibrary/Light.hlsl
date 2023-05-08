@@ -29,7 +29,7 @@ DirectionalShadowData GetDirectionalShadowData(int lightIndex, ShadowData shadow
     return data;
 }
 
-int GetLightCounts()
+int GetDirLightCount()
 {
     return _DirectionalLightCount;
 }
