@@ -42,6 +42,14 @@ public class ShadowSettings
         //级联淡入值
         [Range(0.001F, 1F)]
         public float cascadeFade;
+        
+        public CascadeBlendMode cascadeBlend;
+        public enum CascadeBlendMode
+        {
+            Hard,
+            Soft,
+            Dither
+        }
 
     }
     
@@ -54,10 +62,12 @@ public class ShadowSettings
         PCF7x7
     }
 
+
     public Directional directional = new Directional
     {
         atlasSize = TextureSize._1024,
         filter = FilterMode.PCF2x2,
+        cascadeBlend = Directional.CascadeBlendMode.Hard,
         cascadeCount = 4,
         cascadeRatio1 = 0.1f,
         cascadeRatio2 = 0.25f,

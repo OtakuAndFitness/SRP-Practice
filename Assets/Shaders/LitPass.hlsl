@@ -60,10 +60,10 @@ float4 LitPassFragment(Varyings input) : SV_TARGET
     float4 finalCol = UNITY_ACCESS_INSTANCED_PROP(UnityPerMaterial, _BaseColor);
     finalCol *= baseCol;
 
-    #if _CLIPPING
-        float alpha = UNITY_ACCESS_INSTANCED_PROP(UnityPerMaterial, _CutOff);
-        clip(finalCol.a - alpha);
-    #endif
+#if defined(_CLIPPING)
+    float alpha = UNITY_ACCESS_INSTANCED_PROP(UnityPerMaterial, _CutOff);
+    clip(finalCol.a - alpha);
+#endif
 
     Surface sf;
     sf.position = input.positionWS;
@@ -75,11 +75,13 @@ float4 LitPassFragment(Varyings input) : SV_TARGET
     sf.alpha = finalCol.a;
     sf.metallic = UNITY_ACCESS_INSTANCED_PROP(UnityPerMaterial, _Metallic);
     sf.smoothness = UNITY_ACCESS_INSTANCED_PROP(UnityPerMaterial, _Smoothness);
-    #if defined(_PREMULTIPY_ALPHA)
-        BRDF brdf = GetBRDF(sf,true);
-    #else
-        BRDF brdf = GetBRDF(sf);
-    #endif
+    //计算抖动值
+    sf.dither = InterleavedGradientNoise(input.positionCS.xy,0);
+#if defined(_PREMULTIPY_ALPHA)
+    BRDF brdf = GetBRDF(sf,true);
+#else
+    BRDF brdf = GetBRDF(sf);
+#endif
     float3 color = GetLighting(sf,brdf);
     return float4(color,sf.alpha);
 }

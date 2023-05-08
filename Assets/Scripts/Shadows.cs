@@ -48,7 +48,7 @@ public class Shadows
     //已储存的可投射阴影的平行光数量
     int ShadowedDirectionalLightCount;
     
-    static int directionalShadowAtlasId = Shader.PropertyToID("_DirectionalShadowAtlas");
+    static int dirShadowAtlasId = Shader.PropertyToID("_DirectionalShadowAtlas");
     
     static int dirShadowMatricesId = Shader.PropertyToID("_DirectionalShadowMatrices");
     
@@ -70,6 +70,12 @@ public class Shadows
     static Vector4[] cascadeData = new Vector4[maxCascades];
     
     static int shadowAtlasSizeId = Shader.PropertyToID("_ShadowAtlasSize");
+    
+    static string[] cascadeBlendKeywords =
+    {
+        "_CASCADE_BLEND_SOFT",
+        "_CASCADE_BLEND_DITHER"
+    };
     
     CullingResults crs;
 
@@ -122,18 +128,18 @@ public class Shadows
     }
     
     //设置关键字开启哪种PCF滤波模式
-    void SetKeywords()
+    void SetKeywords(string[] keywords, int enableIndex)
     {
-        int enableIndex = (int)(shadowSettings.directional.filter - 1);
-        for (int i = 0; i < directionalFilterKeywords.Length; i++)
+        // int enableIndex = (int)(shadowSettings.directional.filter - 1);
+        for (int i = 0; i < keywords.Length; i++)
         {
             if (i == enableIndex)
             {
-                cmb.EnableShaderKeyword(directionalFilterKeywords[i]);
+                cmb.EnableShaderKeyword(keywords[i]);
             }
             else
             {
-                cmb.DisableShaderKeyword(directionalFilterKeywords[i]);
+                cmb.DisableShaderKeyword(keywords[i]);
             }
         }
     }
@@ -142,8 +148,8 @@ public class Shadows
     {
         //创建rt, 并指定该类型是阴影贴图
         int atlasSize = (int)shadowSettings.directional.atlasSize;
-        cmb.GetTemporaryRT(directionalShadowAtlasId, atlasSize, atlasSize, 32, FilterMode.Bilinear, RenderTextureFormat.Shadowmap);
-        cmb.SetRenderTarget(directionalShadowAtlasId, RenderBufferLoadAction.DontCare,RenderBufferStoreAction.Store);
+        cmb.GetTemporaryRT(dirShadowAtlasId, atlasSize, atlasSize, 32, FilterMode.Bilinear, RenderTextureFormat.Shadowmap);
+        cmb.SetRenderTarget(dirShadowAtlasId, RenderBufferLoadAction.DontCare,RenderBufferStoreAction.Store);
         cmb.ClearRenderTarget(true,false,Color.clear);
         cmb.BeginSample(cmbName);
         ExecuteBuffer();
@@ -162,12 +168,11 @@ public class Shadows
         cmb.SetGlobalVectorArray(cascadeDataId, cascadeData);
         //阴影转换矩阵传入GPU
         cmb.SetGlobalMatrixArray(dirShadowMatricesId, dirShadowMatrices);
-        cmb.SetGlobalFloat(shadowDistanceId, shadowSettings.maxDistance);
-        cmb.SetGlobalVector(shadowDistanceFadeId, new Vector4(1f / shadowSettings.maxDistance, 1f / shadowSettings.distanceFade));
         float f = 1f - shadowSettings.directional.cascadeFade;
-        cmb.SetGlobalVector(shadowDistanceFadeId, new Vector4(1f / shadowSettings.maxDistance, 1f / shadowSettings.distanceFade, 1f / 1f - f * f));
+        cmb.SetGlobalVector(shadowDistanceFadeId, new Vector4(1f / shadowSettings.maxDistance, 1f / shadowSettings.distanceFade, 1f / (1f - f * f)));
         //设置关键字
-        SetKeywords();
+        SetKeywords(directionalFilterKeywords, (int)shadowSettings.directional.filter - 1);
+        SetKeywords(cascadeBlendKeywords, (int)shadowSettings.directional.cascadeBlend - 1);
         //传递图集大小和纹素大小
         cmb.SetGlobalVector(shadowAtlasSizeId, new Vector4(atlasSize, 1f / atlasSize));
         cmb.EndSample(cmbName);
@@ -182,6 +187,7 @@ public class Shadows
         int cascadeCount = shadowSettings.directional.cascadeCount;
         int tileOffset = index * cascadeCount;
         Vector3 ratios = shadowSettings.directional.CascadeRatios;
+        float cullingFactor = Mathf.Max(0f, 0.8f - shadowSettings.directional.cascadeFade);
         for (int i = 0; i < cascadeCount; i++)
         {
             crs.ComputeDirectionalShadowMatricesAndCullingPrimitives(light.visibleLightIndex, i, cascadeCount,ratios, tileSize, light.nearPlaneOffset,
@@ -193,6 +199,8 @@ public class Shadows
                 SetCascadeData(i, shadowSplitData.cullingSphere, tileSize);
 
             }
+            //剔除偏差
+            shadowSplitData.shadowCascadeBlendCullingFactor = cullingFactor;
             shadowDrawingSettings.splitData = shadowSplitData;
             //调整图块索引，它等于光源的图块偏移加上级联的索引
             int tileIndex = tileOffset + i;
@@ -243,39 +251,26 @@ public class Shadows
             m.m23 = -m.m23;
         }
         //设置矩阵坐标
-        m.m00 = 0.5f * (m.m00 + m.m30);
-        m.m01 = 0.5f * (m.m01 + m.m31);
-        m.m02 = 0.5f * (m.m02 + m.m32);
-        m.m03 = 0.5f * (m.m03 + m.m33);
-        m.m10 = 0.5f * (m.m10 + m.m30);
-        m.m11 = 0.5f * (m.m11 + m.m31);
-        m.m12 = 0.5f * (m.m12 + m.m32);
-        m.m13 = 0.5f * (m.m13 + m.m33);
+        float scale = 1f / split;
+        m.m00 = (0.5f * (m.m00 + m.m30) + offset.x * m.m30) * scale;
+        m.m01 = (0.5f * (m.m01 + m.m31) + offset.x * m.m31) * scale;
+        m.m02 = (0.5f * (m.m02 + m.m32) + offset.x * m.m32) * scale;
+        m.m03 = (0.5f * (m.m03 + m.m33) + offset.x * m.m33) * scale;
+        m.m10 = (0.5f * (m.m10 + m.m30) + offset.y * m.m30) * scale;
+        m.m11 = (0.5f * (m.m11 + m.m31) + offset.y * m.m31) * scale;
+        m.m12 = (0.5f * (m.m12 + m.m32) + offset.y * m.m32) * scale;
+        m.m13 = (0.5f * (m.m13 + m.m33) + offset.y * m.m33) * scale;
         m.m20 = 0.5f * (m.m20 + m.m30);
         m.m21 = 0.5f * (m.m21 + m.m31);
         m.m22 = 0.5f * (m.m22 + m.m32);
         m.m23 = 0.5f * (m.m23 + m.m33);
-        //设置偏移量
-        float scale = 1f / split;
-        m.m00 = (0.5f * m.m00 + 0.5f) * scale;
-        m.m01 = (0.5f * m.m01 + 0.5f) * scale;
-        m.m02 = (0.5f * m.m02 + 0.5f) * scale;
-        m.m03 = (0.5f * m.m03 + 0.5f) * scale;
-        m.m10 = (0.5f * m.m10 + 0.5f) * scale;
-        m.m11 = (0.5f * m.m11 + 0.5f) * scale;
-        m.m12 = (0.5f * m.m12 + 0.5f) * scale;
-        m.m13 = (0.5f * m.m13 + 0.5f) * scale;
-        m.m20 = (0.5f * m.m20 + 0.5f) * scale;
-        m.m21 = (0.5f * m.m21 + 0.5f) * scale;
-        m.m22 = (0.5f * m.m22 + 0.5f) * scale;
-        m.m23 = (0.5f * m.m23 + 0.5f) * scale;
         
         return m;
     }
 
     public void CleanUp()
     {
-        cmb.ReleaseTemporaryRT(directionalShadowAtlasId);
+        cmb.ReleaseTemporaryRT(dirShadowAtlasId);
         ExecuteBuffer();
     }
 }

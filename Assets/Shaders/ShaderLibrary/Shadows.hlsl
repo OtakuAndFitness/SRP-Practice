@@ -3,15 +3,15 @@
 
 #include "Packages/com.unity.render-pipelines.core/ShaderLibrary/Shadow/ShadowSamplingTent.hlsl"
 //如果使用的是PCF 3x3
-#if _DIRECTIONAL_PCF3
+#if defined(_DIRECTIONAL_PCF3)
     //需要4个滤波样本
     #define DIRECTIONAL_FILTER_SAMPLES 4
     #define DIRECTIONAL_FILTER_SETUP SampleShadow_ComputeSamples_Tent_3x3
-#elif _DIRECTIONAL_PCF5
+#elif defined(_DIRECTIONAL_PCF5)
     //需要9个滤波样本
     #define DIRECTIONAL_FILTER_SAMPLES 9
     #define DIRECTIONAL_FILTER_SETUP SampleShadow_ComputeSamples_Tent_5x5
-#elif _DIRECTIONAL_PCF7
+#elif defined(_DIRECTIONAL_PCF7)
     //需要16个滤波样本
     #define DIRECTIONAL_FILTER_SAMPLES 16
     #define DIRECTIONAL_FILTER_SETUP SampleShadow_ComputeSamples_Tent_7x7
@@ -33,7 +33,6 @@ CBUFFER_START(_CustomShadows)
     float4 _CascadeData[MAX_CASCADE_COUNT];
     //阴影转换矩阵
     float4x4 _DirectionalShadowMatrices[MAX_SHADOWED_DIRECTIONAL_LIGHTS * MAX_CASCADE_COUNT];
-    float _ShadowDistance;
     //阴影过渡距离
     float4 _ShadowDistanceFade;
     float _ShadowAtlasSize;
@@ -45,6 +44,8 @@ struct ShadowData
     int cascadeIndex;
     //是否采样阴影的标识
     float strength;
+    //混合级联
+    float cascadeBlend;
 };
 
 //阴影的数据信息
@@ -66,19 +67,25 @@ float FadedShadowStrength(float distance, float scale, float fade)
 ShadowData GetShadowData(Surface surfaceWS)
 {
     ShadowData data;
+    data.cascadeBlend = 1.0;
     data.strength = FadedShadowStrength(surfaceWS.depth, _ShadowDistanceFade.x, _ShadowDistanceFade.y);
     int i;
     //如果物体表面到球心的平方距离小于球体半径的平方，就说明该物体在这层级联包围球中，得到合适的级联层级索引
-    for (i=0;i<_CascadeCount;i++)
+    for (int i=0;i<_CascadeCount;i++)
     {
         float4 sphere = _CascadeCullingSpheres[i];
         float distanceSqr = DistanceSquared(surfaceWS.position, sphere.xyz);
         if (distanceSqr < sphere.w)
         {
+            //计算级联阴影的过渡强度
+            float fade = FadedShadowStrength(distanceSqr, _CascadeData[i].x, _ShadowDistanceFade.z);
             //如果绘制的对象在最后一个级联的范围中，计算级联的过渡阴影强度，和阴影最大距离的过渡阴影强度相乘得到最终阴影强度
             if (i == _CascadeCount - 1)
             {
-                data.strength *= FadedShadowStrength(distanceSqr, _CascadeData[i].x, _ShadowDistanceFade.z);
+                data.strength *= fade;
+            }else
+            {
+                data.cascadeBlend = fade;
             }
             break;
         }
@@ -88,6 +95,15 @@ ShadowData GetShadowData(Surface surfaceWS)
     {
         data.strength = 0.0;
     }
+#if defined(_CASCADE_BLEND_DITHER)
+    else if (data.cascadeBlend < surfaceWS.dither)
+    {
+        i+=1;
+    }
+#endif
+#if !defined(_CASCADE_BLEND_SOFT)
+    data.cascadeBlend = 1.0;
+#endif
     data.cascadeIndex = i;
     return data;
 }
@@ -98,9 +114,10 @@ float SampleDirectionalShadowAtlas(float3 positionSTS)
     return SAMPLE_TEXTURE2D_SHADOW(_DirectionalShadowAtlas, SHADOW_SAMPLER, positionSTS);
 }
 
+//PCF滤波采样平行光阴影
 float FilterDirectionalShadow(float3 positionSTS)
 {
-#if DIRECTIONAL_FILTER_SETUP
+#if defined(DIRECTIONAL_FILTER_SETUP)
     //样本权重
     float weights[DIRECTIONAL_FILTER_SAMPLES];
     //样本位置
@@ -122,6 +139,9 @@ float FilterDirectionalShadow(float3 positionSTS)
 //计算阴影衰减
 float GetDirectionalShadowAttenuation(DirectionalShadowData directional, ShadowData global, Surface surfaceWS)
 {
+#if !defined(_RECEIVE_SHADOWS)
+    return 1.0;
+#endif
     if (directional.strength <= 0.0)
     {
         return 1.0;
@@ -131,6 +151,13 @@ float GetDirectionalShadowAttenuation(DirectionalShadowData directional, ShadowD
     //通过加上法线偏移后的表面顶点位置得到在阴影纹理空间的新位置，然后对图集进行采样
     float3 positionSTS = mul(_DirectionalShadowMatrices[directional.tileIndex], float4(surfaceWS.position + normalBias, 1.0f)).xyz;
     float shadow = FilterDirectionalShadow(positionSTS);
+    //如果级联混合小于1代表在
+    if (global.cascadeBlend < 1.0)
+    {
+        normalBias = surfaceWS.normal * directional.normalBias * _CascadeData[global.cascadeIndex + 1].y;
+        positionSTS = mul(_DirectionalShadowMatrices[directional.tileIndex + 1], float4(surfaceWS.position + normalBias, 1.0f)).xyz;
+        shadow = lerp(FilterDirectionalShadow(positionSTS), shadow, global.cascadeBlend);
+    }
     return lerp(1.0, shadow, directional.strength);
 }
 
