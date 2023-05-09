@@ -39,7 +39,8 @@ public partial class CameraRenderer
         }
         cmb.BeginSample(SampleName);
         ExecuteBuffer();
-        lighting.SetUp(context,crs,shadowSettings);
+        //设置光照信息，包含阴影信息，但阴影自己有个脚本来处理
+        lighting.Setup(context,crs,shadowSettings);
         cmb.EndSample(SampleName);
         
         Setup();
@@ -52,7 +53,7 @@ public partial class CameraRenderer
         //绘制Gizmos
         DrawGizmos();
 
-        lighting.CleanUp();
+        lighting.Cleanup();
         //context发送的渲染命令都是缓冲的，所以要通过submit来提交命令
         Submit();
     }

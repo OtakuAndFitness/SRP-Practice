@@ -30,7 +30,7 @@ public class Lighting
 
     Shadows shadows = new Shadows();
 
-    public void SetUp(ScriptableRenderContext context, CullingResults crs, ShadowSettings shadowSettings)
+    public void Setup(ScriptableRenderContext context, CullingResults crs, ShadowSettings shadowSettings)
     {
         this.crs = crs;
         cmb.BeginSample(cmbName);
@@ -72,8 +72,6 @@ public class Lighting
 
     void SetupDirectionalLight(int index, ref VisibleLight vl)
     {
-        // Light light = RenderSettings.sun;
-        
         directionalColors[index] = vl.finalColor;//需要去CustomRenderPipeline那里设置线性颜色才是线性的
         directionalDirs[index] = -vl.localToWorldMatrix.GetColumn(2);
         
@@ -81,8 +79,8 @@ public class Lighting
         dirLightShadowData[index] = shadows.ReserveDirectionalShadows(vl.light, index);
     }
 
-    public void CleanUp()
+    public void Cleanup()
     {
-        shadows.CleanUp();
+        shadows.Cleanup();
     }
 }

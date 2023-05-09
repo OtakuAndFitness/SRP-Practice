@@ -270,7 +270,7 @@ public class Shadows
         return m;
     }
 
-    public void CleanUp()
+    public void Cleanup()
     {
         cmb.ReleaseTemporaryRT(dirShadowAtlasId);
         ExecuteBuffer();
