@@ -46,11 +46,13 @@ float4 MetaPassFragment(Varyings input) : SV_TARGET
     float4 meta = 0.0;
     if (unity_MetaFragmentControl.x)
     {
+        //漫反射率
         meta = float4(brdf.diffuse,1.0);
         meta.rgb += brdf.specular * brdf.roughness * 0.5;
         meta.rgb = min(PositivePow(meta.rgb, unity_OneOverOutputBoost), unity_MaxOutputValue);
     }else if (unity_MetaFragmentControl.y)
     {
+        //自发光
         meta = float4(GetEmission(input.uv), 1.0);
     }
     return meta;
