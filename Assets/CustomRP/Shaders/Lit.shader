@@ -17,10 +17,18 @@ Shader "Custom/Lit"
         //阴影模式
         [KeywordEnum(On, Clip, Dither, Off)] _Shadows("Shadows", Float) = 0
         [Toggle(_RECEIVE_SHADOWS)] _ReceiveShadows("Receive Shadows", Float) = 1
+        [NoScaleOffset] _EmissionMap("Emission Map", 2D) = "white"{}
+        [HDR] _EmissionColor("Emission Color", Color) = (0,0,0,0)
+        [HideInInspector] _MainTex("Texture for Lightmap", 2D) = "white" {}
+        [HideInInspector] _Color("Color for Lightmap", Color) = (0.5,0.5,0.5,1)
 
     }
     SubShader
     {
+        HLSLINCLUDE
+        #include "../ShaderLibrary/Common.hlsl"
+        #include "LightInput.hlsl"
+        ENDHLSL
 
         Pass
         {
@@ -33,6 +41,7 @@ Shader "Custom/Lit"
             #pragma shader_feature _CLIPPING
             #pragma shader_feature _RECEIVE_SHADOWS
             #pragma shader_feature _PREMULTIPY_ALPHA
+            #pragma multi_compile _ LIGHTMAP_ON
             #pragma vertex LitPassVertex
             #pragma fragment LitPassFragment
             #pragma multi_compile_instancing
@@ -57,6 +66,19 @@ Shader "Custom/Lit"
             #pragma multi_compile_instancing
             #pragma target 3.5//排除OpenGL ES 2.0
             #include "ShadowCasterPass.hlsl"
+            ENDHLSL
+        }
+        
+        Pass{
+            Tags{"LightMode" = "Meta"}
+            
+            Cull Off
+            
+            HLSLPROGRAM
+            #pragma target 3.5
+            #pragma vertex MetaPassVertex
+            #pragma fragment MetaPassFragment
+            #include "MetaPass.hlsl"
             ENDHLSL
         }
     }
