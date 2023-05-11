@@ -13,7 +13,7 @@
 //否则这些宏都应为空
     #define GI_ATTRIBUTE_DATA
     #define GI_VARYINGS_DATA
-    #define TRANSFER_GI_DATA
+    #define TRANSFER_GI_DATA(input,output)
     #define GI_FRAGMENT_DATA(input) 0.0
 #endif
 
@@ -59,15 +59,15 @@ float3 SampleLightProbe(Surface surfaceWS)
 //采样光照贴图
 float3 SampleLightMap(float2 lightMapUV)
 {
-    #if defined(LIGHTMAP_ON)
+#if defined(LIGHTMAP_ON)
     return SampleSingleLightmap(TEXTURE2D_ARGS(unity_Lightmap, samplerunity_Lightmap), lightMapUV, float4(1.0,1.0,0.0,0.0),
-        #if defined (UNITY_LIGHTMAP_FULL_HDR)
-            false,
-        #else
-            true,
-        #endif
-        float4(LIGHTMAP_HDR_MULTIPLIER, LIGHTMAP_HDR_EXPONENT, 0.0,0.0));
+    #if defined (UNITY_LIGHTMAP_FULL_HDR)
+        false,
     #else
+        true,
+    #endif
+    float4(LIGHTMAP_HDR_MULTIPLIER, LIGHTMAP_HDR_EXPONENT, 0.0,0.0));
+#else
     return 0.0;
 #endif
     

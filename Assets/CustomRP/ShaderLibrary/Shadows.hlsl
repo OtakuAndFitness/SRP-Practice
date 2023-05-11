@@ -71,7 +71,7 @@ ShadowData GetShadowData(Surface surfaceWS)
     data.strength = FadedShadowStrength(surfaceWS.depth, _ShadowDistanceFade.x, _ShadowDistanceFade.y);
     int i;
     //如果物体表面到球心的平方距离小于球体半径的平方，就说明该物体在这层级联包围球中，得到合适的级联层级索引
-    for (int i=0;i<_CascadeCount;i++)
+    for (i=0;i<_CascadeCount;i++)
     {
         float4 sphere = _CascadeCullingSpheres[i];
         float distanceSqr = DistanceSquared(surfaceWS.position, sphere.xyz);

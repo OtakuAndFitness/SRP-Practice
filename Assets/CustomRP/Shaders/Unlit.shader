@@ -44,7 +44,7 @@ Shader "Custom/Unlit"
             ColorMask 0
             
             HLSLPROGRAM
-            #pragma shader_feature _CLIPPING
+            #pragma shader_feature _ _SHADOWS_CLIP _SHADOWS_DITHER
             #pragma shader_feature _PREMULTIPY_ALPHA
             #pragma vertex ShadowCasterPassVertex
             #pragma fragment ShadowCasterPassFragment
@@ -53,6 +53,19 @@ Shader "Custom/Unlit"
             #pragma multi_compile_instancing
             #pragma target 3.5//排除OpenGL ES 2.0
             #include "ShadowCasterPass.hlsl"
+            ENDHLSL
+        }
+        
+        Pass{
+            Tags{"LightMode" = "Meta"}
+            
+            Cull Off
+            
+            HLSLPROGRAM
+            #pragma target 3.5
+            #pragma vertex MetaPassVertex
+            #pragma fragment MetaPassFragment
+            #include "MetaPass.hlsl"
             ENDHLSL
         }
 

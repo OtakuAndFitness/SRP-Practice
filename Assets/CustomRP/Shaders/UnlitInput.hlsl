@@ -37,5 +37,15 @@ float3 GetEmission(float2 baseUV)
     return GetBase(baseUV).rgb;
 }
 
+float GetMetallic()
+{
+    return 0.0;
+}
+
+float GetSmoothness()
+{
+    return 0.0;
+}
+
 
 #endif
