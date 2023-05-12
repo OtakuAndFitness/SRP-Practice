@@ -42,6 +42,7 @@ Shader "Custom/Lit"
             #pragma shader_feature _RECEIVE_SHADOWS
             #pragma shader_feature _PREMULTIPY_ALPHA
             #pragma multi_compile _ LIGHTMAP_ON
+            #pragma multi_compile _ _SHADOW_MASK_ALWAYS _SHADOW_MASK_DISTANCE
             #pragma vertex LitPassVertex
             #pragma fragment LitPassFragment
             #pragma multi_compile_instancing

@@ -17,11 +17,17 @@
     #define GI_FRAGMENT_DATA(input) 0.0
 #endif
 
+//Lightmap
 TEXTURE2D(unity_Lightmap);
 SAMPLER(samplerunity_Lightmap);
 
+//LPPV
 TEXTURE3D_FLOAT(unity_ProbeVolumeSH);
 SAMPLER(samplerunity_ProbeVolumeSH);
+
+//ShadowMask
+TEXTURE2D(unity_ShadowMask);
+SAMPLER(samplerunity_ShadowMask);
 
 // CBUFFER_START(_CustomLight)
 //     
@@ -31,7 +37,25 @@ struct GI
 {
     //漫反射颜色
     float3 diffuse;
+    ShadowMask shadowMask;
 };
+
+//采样shadowmask得到烘焙阴影数据
+float4 SampleBakedShadows(float2 lightMapUV, Surface surfaceWS)
+{
+#if defined(LIGHTMAP_ON)
+    return SAMPLE_TEXTURE2D(unity_ShadowMask, samplerunity_ShadowMask, lightMapUV);
+#else
+    if (unity_ProbeVolumeParams.x)
+    {
+        //采样LPPV遮挡数据
+        return SampleProbeOcclusion(TEXTURE3D_ARGS(unity_ProbeVolumeSH, samplerunity_ProbeVolumeSH), surfaceWS.position, unity_ProbeVolumeWorldToObject, unity_ProbeVolumeParams.y, unity_ProbeVolumeParams.z, unity_ProbeVolumeMin.xyz, unity_ProbeVolumeSizeInv.xyz);
+    }else
+    {
+        return unity_ProbesOcclusion;
+    }
+#endif
+}
 
 //光照探针采样
 float3 SampleLightProbe(Surface surfaceWS)
@@ -77,6 +101,17 @@ GI GetGI(float2 lightMapUV, Surface surfaceWS)
 {
     GI gi;
     gi.diffuse = SampleLightMap(lightMapUV) + SampleLightProbe(surfaceWS);
+    gi.shadowMask.always = false;
+    gi.shadowMask.distance = false;
+    gi.shadowMask.shadows = 1.0;
+#if defined(_SHADOW_MASK_ALWAYS)
+    gi.shadowMask.always = true;
+    gi.shadowMask.shadows = SampleBakedShadows(lightMapUV, surfaceWS);
+#endif
+#if defined(_SHADOW_MASK_DISTANCE)
+    gi.shadowMask.distance = true;
+    gi.shadowMask.shadows = SampleBakedShadows(lightMapUV, surfaceWS);
+#endif
     return gi;
 }
 

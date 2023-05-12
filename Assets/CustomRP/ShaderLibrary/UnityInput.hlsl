@@ -24,6 +24,8 @@ CBUFFER_START(UnityPerDraw)
     float4x4 unity_ProbeVolumeWorldToObject;
     float4 unity_ProbeVolumeSizeInv;
     float4 unity_ProbeVolumeMin;
+    //ShadowMask
+    float4 unity_ProbesOcclusion;
 CBUFFER_END
 
 float4x4 unity_MatrixV;

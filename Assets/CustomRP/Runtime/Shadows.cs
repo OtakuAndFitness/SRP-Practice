@@ -31,7 +31,7 @@ public class Shadows
     }
     
     //PCF滤波模式
-    private static string[] directionalFilterKeywords =
+    static string[] directionalFilterKeywords =
     {
         "_DIRECTIONAL_PCF3",
         "_DIRECTIONAL_PCF5",
@@ -43,7 +43,14 @@ public class Shadows
         "_CASCADE_BLEND_SOFT",
         "_CASCADE_BLEND_DITHER"
     };
+
+    static string[] shadowMaskKeywords =
+    {
+        "_SHADOW_MASK_ALWAYS",
+        "_SHADOW_MASK_DISTANCE"
+    };
     
+    bool useShadowMask;
 
     //储存可投射阴影的可见光源的索引
     ShadowedDirectionalLight[] shadowedDirectionalLights =
@@ -87,6 +94,7 @@ public class Shadows
         this.crs = crs;
         this.shadowSettings = shadowSettings;
         ShadowedDirectionalLightCount = 0;
+        useShadowMask = false;
         // cmb.BeginSample(cmbName);
         // SetUpDirectionalLight();
         // SetupLights();
@@ -101,13 +109,26 @@ public class Shadows
         cmb.Clear();
     }
 
-    public Vector3 ReserveDirectionalShadows(Light light, int visibleLightIndex)
+    public Vector4 ReserveDirectionalShadows(Light light, int visibleLightIndex)
     {
         //储存可见光源索引，前提是光源开启了阴影投射并且阴影强度大于0
         if (ShadowedDirectionalLightCount < maxShadowedDirectionalLightCount && light.shadows != LightShadows.None &&
             //还需要加上一个判断，是否在阴影最大投射距离内，有被该光源影响且需要投影的物体存在，如果没有就不需要渲染该光源的阴影贴图了
-            light.shadowStrength > 0f && crs.GetShadowCasterBounds(visibleLightIndex, out Bounds bounds))
+            light.shadowStrength > 0f)
         {
+            float maskChannel = -1;
+            //如果使用了shadowmask
+            LightBakingOutput lightBaking = light.bakingOutput;
+            if (lightBaking.lightmapBakeType == LightmapBakeType.Mixed &&
+                lightBaking.mixedLightingMode == MixedLightingMode.Shadowmask)
+            {
+                useShadowMask = true;
+                maskChannel = lightBaking.occlusionMaskChannel;
+            }
+            if (!crs.GetShadowCasterBounds(visibleLightIndex, out Bounds bounds))
+            {
+                return new Vector4(-light.shadowStrength, 0f, 0f, maskChannel);
+            }
             shadowedDirectionalLights[ShadowedDirectionalLightCount] = new ShadowedDirectionalLight
             {
                 visibleLightIndex = visibleLightIndex,
@@ -115,10 +136,10 @@ public class Shadows
                 nearPlaneOffset = light.shadowNearPlane
             };
             //返回阴影强度和阴影图块的偏移
-            return new Vector3(light.shadowStrength, shadowSettings.directional.cascadeCount * ShadowedDirectionalLightCount++, light.shadowNormalBias);
+            return new Vector4(light.shadowStrength, shadowSettings.directional.cascadeCount * ShadowedDirectionalLightCount++, light.shadowNormalBias, maskChannel);
         }
 
-        return Vector3.zero;
+        return new Vector4(0f, 0f, 0f, -1f);
     }
 
     public void Render()
@@ -127,6 +148,10 @@ public class Shadows
         {
             RenderDirectionalShadows();
         }
+        //是否使用阴影模板
+        cmb.BeginSample(cmbName);
+        SetKeywords(shadowMaskKeywords, useShadowMask ? QualitySettings.shadowmaskMode == ShadowmaskMode.Shadowmask ? 0 : 1 : -1);
+        cmb.EndSample(cmbName);
     }
     
     //设置关键字开启哪种PCF滤波模式
