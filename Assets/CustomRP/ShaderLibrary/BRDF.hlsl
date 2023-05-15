@@ -40,6 +40,7 @@ float3 IndirectBRDF(Surface sf, BRDF brdf, float3 diffuse, float3 specular)
     float fresnelStrength = sf.fresnelStrength * Pow4(1.0 - saturate(dot(sf.normal, sf.viewDir)));
     float3 reflection = specular * lerp(brdf.specular, brdf.fresnel, fresnelStrength);
     reflection /= brdf.roughness * brdf.roughness + 1.0;
+    //metallic拉到1反射球中的倒影会是1，因为brdf.diffuse几乎为0
     return diffuse * brdf.diffuse + reflection;
 }
 
