@@ -40,8 +40,8 @@ float4 MetaPassFragment(Varyings input) : SV_TARGET
     Surface sf;
     ZERO_INITIALIZE(Surface, sf);
     sf.color = base.rgb;
-    sf.metallic = GetMetallic();
-    sf.smoothness = GetSmoothness();
+    sf.metallic = GetMetallic(input.uv);
+    sf.smoothness = GetSmoothness(input.uv);
     BRDF brdf = GetBRDF(sf);
     float4 meta = 0.0;
     if (unity_MetaFragmentControl.x)

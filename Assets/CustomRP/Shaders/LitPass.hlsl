@@ -16,7 +16,7 @@ struct Attributes
 {
     float3 positionOS : POSITION;
     float2 uv : TEXCOORD0;
-    float3 normalOS : NORMAL;
+    float3 normalOS : TEXCOORD3;
     GI_ATTRIBUTE_DATA
     UNITY_VERTEX_INPUT_INSTANCE_ID
 };
@@ -24,9 +24,10 @@ struct Attributes
 struct Varyings
 {
     float4 positionCS : SV_POSITION;
-    float3 positionWS : VAR_POSITION;
+    float3 positionWS : TEXCOORD4;
     float2 uv : TEXCOORD0;
-    float3 normalWS : VAR_NORMAL;
+    float2 detailUV : TEXCOORD2;
+    float3 normalWS : TEXCOORD3;
     GI_VARYINGS_DATA
     UNITY_VERTEX_INPUT_INSTANCE_ID
 };
@@ -39,8 +40,8 @@ Varyings LitPassVertex(Attributes input)
     TRANSFER_GI_DATA(input,output);
     output.positionWS = TransformObjectToWorld(input.positionOS);
     output.positionCS = TransformWorldToHClip(output.positionWS);
-    float4 baseST = UNITY_ACCESS_INSTANCED_PROP(UnityPerMaterial,_BaseMap_ST);
     output.uv = TransformBaseUV(input.uv);
+    output.detailUV = TransformDetailUV(input.uv);
     output.normalWS = TransformObjectToWorldNormal(input.normalOS);
     return output;
 }
@@ -63,8 +64,9 @@ float4 LitPassFragment(Varyings input) : SV_TARGET
     sf.depth = -TransformWorldToView(input.positionWS).z;
     sf.color = baseCol.rgb;
     sf.alpha = baseCol.a;
-    sf.metallic = GetMetallic();
-    sf.smoothness = GetSmoothness();
+    sf.metallic = GetMetallic(input.uv);
+    sf.smoothness = GetSmoothness(input.uv);
+    sf.occlusion = GetOcclusion(input.uv);
     sf.fresnelStrength = GetFresnel();
     //计算抖动值
     sf.dither = InterleavedGradientNoise(input.positionCS.xy,0);

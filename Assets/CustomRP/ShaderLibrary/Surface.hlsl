@@ -8,6 +8,7 @@ struct Surface
     float alpha;
     float metallic;
     float smoothness;
+    float occlusion;
     float3 viewDir;
 
     //表面位置
