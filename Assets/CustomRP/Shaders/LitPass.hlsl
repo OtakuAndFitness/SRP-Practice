@@ -3,9 +3,9 @@
 
 #include "../ShaderLibrary/Surface.hlsl"
 #include "../ShaderLibrary/Shadows.hlsl"
-#include "../ShaderLibrary/GI.hlsl"
 #include "../ShaderLibrary/Light.hlsl"
 #include "../ShaderLibrary/BRDF.hlsl"
+#include "../ShaderLibrary/GI.hlsl"
 #include "../ShaderLibrary/Lighting.hlsl"
 
 CBUFFER_START(UnityPerMaterial)
@@ -48,6 +48,7 @@ Varyings LitPassVertex(Attributes input)
 float4 LitPassFragment(Varyings input) : SV_TARGET
 {
     UNITY_SETUP_INSTANCE_ID(input);
+    ClipLOD(input.positionCS, unity_LODFade.x);
     float4 baseCol = GetBase(input.uv);
 
 #if defined(_CLIPPING)
@@ -64,6 +65,7 @@ float4 LitPassFragment(Varyings input) : SV_TARGET
     sf.alpha = baseCol.a;
     sf.metallic = GetMetallic();
     sf.smoothness = GetSmoothness();
+    sf.fresnelStrength = GetFresnel();
     //计算抖动值
     sf.dither = InterleavedGradientNoise(input.positionCS.xy,0);
 #if defined(_PREMULTIPY_ALPHA)
@@ -71,7 +73,7 @@ float4 LitPassFragment(Varyings input) : SV_TARGET
 #else
     BRDF brdf = GetBRDF(sf);
 #endif
-    GI gi = GetGI(GI_FRAGMENT_DATA(input), sf);
+    GI gi = GetGI(GI_FRAGMENT_DATA(input), sf, brdf);
     float3 color = GetLighting(sf,brdf, gi);
     color += GetEmission(input.uv);
     return float4(color,sf.alpha);

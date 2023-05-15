@@ -8,7 +8,8 @@ Shader "Custom/Lit"
         [Toggle()] _Clipping("Alpha Clipping", Float) = 0
         [Toggle(_PREMULTIPY_ALPHA)] _PremultipyAlpha("Premultipy Alpha", Float) = 0
         _Metallic ("_Metallic", Range(0,1)) = 0
-        _Smoothness ("_Smoothness", Range(0,1)) = 0.5 
+        _Smoothness ("_Smoothness", Range(0,1)) = 0.5
+        _Fresnel("_Fresnel", Range(0,1)) = 1 
         //设置混合模式
         [Enum(UnityEngine.Rendering.BlendMode)] _SrcBlend("Src Blend", Float) = 1
         [Enum(UnityEngine.Rendering.BlendMode)] _DstBlend("Dst Blend", Float) = 0
@@ -43,6 +44,7 @@ Shader "Custom/Lit"
             #pragma shader_feature _PREMULTIPY_ALPHA
             #pragma multi_compile _ LIGHTMAP_ON
             #pragma multi_compile _ _SHADOW_MASK_ALWAYS _SHADOW_MASK_DISTANCE
+            #pragma multi_compile _ LOD_FADE_CROSSFADE
             #pragma vertex LitPassVertex
             #pragma fragment LitPassFragment
             #pragma multi_compile_instancing
@@ -64,6 +66,7 @@ Shader "Custom/Lit"
             #pragma fragment ShadowCasterPassFragment
             #pragma multi_compile _ _DIRECTIONAL_PCF3 _DIRECTIONAL_PCF5 _DIRECTIONAL_PCF7
             #pragma multi_compile _ CASCADE_BLEND_SOFT _CASCADE_BLEND_DITHER
+            #pragma multi_compile _ LOD_FADE_CROSSFADE
             #pragma multi_compile_instancing
             #pragma target 3.5//排除OpenGL ES 2.0
             #include "ShadowCasterPass.hlsl"
