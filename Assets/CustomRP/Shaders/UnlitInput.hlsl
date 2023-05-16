@@ -15,6 +15,17 @@ UNITY_INSTANCING_BUFFER_START(UnityPerMaterial)
     UNITY_DEFINE_INSTANCED_PROP(float, _CutOff)
 UNITY_INSTANCING_BUFFER_END(UnityPerMaterial)
 
+struct InputConfig
+{
+    float2 baseUV;
+};
+
+InputConfig GetInputConfig(float2 baseUV)
+{
+    InputConfig c;
+    c.baseUV = baseUV;
+    return c;
+}
 
 float2 TransformBaseUV(float2 baseUV)
 {
@@ -22,9 +33,9 @@ float2 TransformBaseUV(float2 baseUV)
     return baseUV * baseST.xy + baseST.zw;
 }
 
-float4 GetBase(float2 baseUV)
+float4 GetBase(InputConfig config)
 {
-    float4 map = SAMPLE_TEXTURE2D(_BaseMap, sampler_BaseMap, baseUV);
+    float4 map = SAMPLE_TEXTURE2D(_BaseMap, sampler_BaseMap, config.baseUV);
     float4 color = INPUT_PROP(_BaseColor);
     return map * color;
 }
@@ -34,17 +45,17 @@ float GetCutOff()
     return INPUT_PROP(_CutOff);
 }
 
-float3 GetEmission(float2 baseUV)
+float3 GetEmission(InputConfig config)
 {
-    return GetBase(baseUV).rgb;
+    return GetBase(config).rgb;
 }
 
-float GetMetallic(float2 baseUV)
+float GetMetallic(InputConfig config)
 {
     return 0.0;
 }
 
-float GetSmoothness(float2 baseUV)
+float GetSmoothness(InputConfig config)
 {
     return 0.0;
 }

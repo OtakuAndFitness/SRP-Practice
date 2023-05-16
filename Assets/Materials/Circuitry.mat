@@ -10,6 +10,9 @@ Material:
   m_Name: Circuitry
   m_Shader: {fileID: 4800000, guid: e6f750a8fe059471db7709b28217a2ce, type: 3}
   m_ValidKeywords:
+  - _DETAIL_MAP
+  - _MASK_MAP
+  - _NORMAL_MAP
   - _RECEIVE_SHADOWS
   m_InvalidKeywords:
   - _SHADOWS_ON
@@ -34,12 +37,16 @@ Material:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
+    - _DetailMap:
+        m_Texture: {fileID: 2800000, guid: cc5a6008d65f8054092c30c7d689cc33, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
     - _DetailMask:
         m_Texture: {fileID: 2800000, guid: cc5a6008d65f8054092c30c7d689cc33, type: 3}
         m_Scale: {x: 8, y: 4}
         m_Offset: {x: 0, y: 0}
     - _DetailNormalMap:
-        m_Texture: {fileID: 0}
+        m_Texture: {fileID: 2800000, guid: 5bcc86c29e0e284448069670ce01553a, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _EmissionMap:
@@ -58,6 +65,10 @@ Material:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
+    - _NormalMap:
+        m_Texture: {fileID: 2800000, guid: 259e133ae16e0a741aa4d32987ee9cad, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
     - _OcclusionMap:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
@@ -72,14 +83,21 @@ Material:
     - _Clipping: 0
     - _CutOff: 0.5
     - _Cutoff: 0.5
+    - _DetailAlbedo: 0.2
+    - _DetailMapToggle: 1
     - _DetailNormalMapScale: 1
+    - _DetailNormalScale: 0.5
+    - _DetailSmoothness: 0.2
     - _DstBlend: 0
     - _Fresnel: 1
     - _GlossMapScale: 1
     - _Glossiness: 0.5
     - _GlossyReflections: 1
+    - _MaskMapToggle: 1
     - _Metallic: 1
     - _Mode: 0
+    - _NormalMapToggle: 1
+    - _NormalScale: 1
     - _Occlusion: 0.5
     - _OcclusionStrength: 1
     - _Parallax: 0.02
@@ -93,7 +111,7 @@ Material:
     - _UVSec: 0
     - _ZWrite: 1
     m_Colors:
-    - _BaseColor: {r: 1, g: 1, b: 1, a: 1}
-    - _Color: {r: 1, g: 1, b: 1, a: 1}
+    - _BaseColor: {r: 0.5764706, g: 0.28627452, b: 0.57254905, a: 1}
+    - _Color: {r: 0.5764706, g: 0.28627452, b: 0.57254905, a: 1}
     - _EmissionColor: {r: 1, g: 1, b: 1, a: 1}
   m_BuildTextureStacks: []

@@ -31,7 +31,8 @@ Varyings UnlitPassVertex(Attributes input)
 float4 UnlitPassFragment(Varyings input) : SV_TARGET
 {
     UNITY_SETUP_INSTANCE_ID(input);
-    float4 baseCol = GetBase(input.uv);
+    InputConfig config = GetInputConfig(input.uv);
+    float4 baseCol = GetBase(config);
    
 
     #if defined(_CLIPPING)

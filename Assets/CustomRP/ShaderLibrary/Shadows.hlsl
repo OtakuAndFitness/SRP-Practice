@@ -1,4 +1,4 @@
-#ifndef CUSTOM_SHADOWS_INCLUDED
+﻿#ifndef CUSTOM_SHADOWS_INCLUDED
 #define CUSTOM_SHADOWS_INCLUDED
 
 #include "Packages/com.unity.render-pipelines.core/ShaderLibrary/Shadow/ShadowSamplingTent.hlsl"
@@ -150,14 +150,14 @@ float FilterDirectionalShadow(float3 positionSTS)
 float GetCascadedShadow(DirectionalShadowData directional, ShadowData global, Surface surfaceWS)
 {
     //计算法线偏差
-    float3 normalBias = surfaceWS.normal * directional.normalBias * _CascadeData[global.cascadeIndex].y;
+    float3 normalBias = surfaceWS.interpolatedNormal * directional.normalBias * _CascadeData[global.cascadeIndex].y;
     //通过加上法线偏移后的表面顶点位置得到在阴影纹理空间的新位置，然后对图集进行采样
     float3 positionSTS = mul(_DirectionalShadowMatrices[directional.tileIndex], float4(surfaceWS.position + normalBias, 1.0f)).xyz;
     float shadow = FilterDirectionalShadow(positionSTS);
     //如果级联混合小于1代表在
     if (global.cascadeBlend < 1.0)
     {
-        normalBias = surfaceWS.normal * directional.normalBias * _CascadeData[global.cascadeIndex + 1].y;
+        normalBias = surfaceWS.interpolatedNormal * directional.normalBias * _CascadeData[global.cascadeIndex + 1].y;
         positionSTS = mul(_DirectionalShadowMatrices[directional.tileIndex + 1], float4(surfaceWS.position + normalBias, 1.0f)).xyz;
         shadow = lerp(FilterDirectionalShadow(positionSTS), shadow, global.cascadeBlend);
     }

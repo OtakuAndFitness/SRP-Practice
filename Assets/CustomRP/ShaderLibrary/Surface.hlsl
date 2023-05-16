@@ -4,6 +4,7 @@
 struct Surface
 {
     float3 normal;
+    float3 interpolatedNormal;
     float3 color;
     float alpha;
     float metallic;
