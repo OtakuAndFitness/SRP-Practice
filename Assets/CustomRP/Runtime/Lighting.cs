@@ -14,17 +14,28 @@ public class Lighting
     };
 
     const int maxDirLightCount = 4;
+    //定义其他类型光源的最大数量
+    const int maxOtherLightCount = 64;
 
-    static int 
+    private static int
         dirLightColorId = Shader.PropertyToID("_DirectionalLightColors"),
         dirLightDirectionsId = Shader.PropertyToID("_DirectionalLightDirections"),
         dirLightCountId = Shader.PropertyToID("_DirectionalLightCount"),
-        dirLightShadowDataId = Shader.PropertyToID("_DirectionalLightShadowData");
+        dirLightShadowDataId = Shader.PropertyToID("_DirectionalLightShadowData"),
+        otherLightCountId = Shader.PropertyToID("_OtherLightCount"),
+        otherLightColorsId = Shader.PropertyToID("_OtherLightColors"),
+        otherLightPositionsId = Shader.PropertyToID("_OtherLightPositions"),
+        otherLightDirectionsId = Shader.PropertyToID("_OtherLightDirections"),
+        otherLightSpotAnglesId = Shader.PropertyToID("_OtherLightSpotAngles");
 
     static Vector4[] 
         directionalColors = new Vector4[maxDirLightCount],
         directionalDirs = new Vector4[maxDirLightCount],
-        dirLightShadowData = new Vector4[maxDirLightCount];
+        dirLightShadowData = new Vector4[maxDirLightCount],
+        otherLightColors = new Vector4[maxOtherLightCount],
+        otherLightPositions = new Vector4[maxOtherLightCount],
+        otherLightDirections = new Vector4[maxOtherLightCount],
+        otherLightSpotAngles = new Vector4[maxOtherLightCount];
 
     CullingResults crs;
 
@@ -48,26 +59,80 @@ public class Lighting
     {
         NativeArray<VisibleLight> visibleLights = crs.visibleLights;
 
-        int dirLightCount = 0;
+        int dirLightCount = 0, otherLightCount = 0;
         for (int i = 0; i < visibleLights.Length; i++)
         {
             VisibleLight vl = visibleLights[i];
-            if (vl.lightType == LightType.Directional)
+            switch (vl.lightType)
             {
-                //VisibleLight结构比较大，不要拷贝副本了
-                SetupDirectionalLight(dirLightCount++, ref vl);
-                if (dirLightCount >= maxDirLightCount)
-                {
+                case LightType.Directional:
+                    if (dirLightCount < maxDirLightCount)
+                    {
+                        //VisibleLight结构比较大，不要拷贝副本了
+                        SetupDirectionalLight(dirLightCount++, ref vl);
+                    }
                     break;
-                }
+                case LightType.Point:
+                    if (otherLightCount < maxOtherLightCount)
+                    {
+                        SetupPointLight(otherLightCount++, ref vl);
+                    }
+                    break;
+                case LightType.Spot:
+                    if (otherLightCount < maxOtherLightCount)
+                    {
+                        SetupSpotLight(otherLightCount++, ref vl);
+                    }
+                    break;
             }
+            
         }
         cmb.SetGlobalInt(dirLightCountId,dirLightCount);
-        cmb.SetGlobalVectorArray(dirLightColorId,directionalColors);
-        cmb.SetGlobalVectorArray(dirLightDirectionsId,directionalDirs);
+        if (dirLightCount > 0)
+        {
+            cmb.SetGlobalVectorArray(dirLightColorId,directionalColors);
+            cmb.SetGlobalVectorArray(dirLightDirectionsId,directionalDirs);
+            cmb.SetGlobalVectorArray(dirLightShadowDataId, dirLightShadowData);
+        }
         
-        cmb.SetGlobalVectorArray(dirLightShadowDataId, dirLightShadowData);
+        cmb.SetGlobalInt(otherLightCountId, otherLightCount);
+        if (otherLightCount > 0)
+        {
+            cmb.SetGlobalVectorArray(otherLightColorsId, otherLightColors);
+            cmb.SetGlobalVectorArray(otherLightPositionsId, otherLightPositions);
+            cmb.SetGlobalVectorArray(otherLightDirectionsId, otherLightDirections);
+            cmb.SetGlobalVectorArray(otherLightSpotAnglesId, otherLightSpotAngles);
+        }
+        
+    }
 
+    //将聚光灯光源的颜色、位置和方向信息储存到数组
+    void SetupSpotLight(int index, ref VisibleLight vl)
+    {
+        otherLightColors[index] = vl.finalColor;
+        Vector4 position = vl.localToWorldMatrix.GetColumn(3);
+        position.w = 1f / Mathf.Max(vl.range * vl.range, 0.00001f);
+        otherLightPositions[index] = position;
+        //本地到世界的转换矩阵的第三列再求反得到光照方向
+        otherLightDirections[index] = -vl.localToWorldMatrix.GetColumn(2);
+
+        Light light = vl.light;
+        float innerCos = Mathf.Cos(Mathf.Deg2Rad * 0.5f * light.innerSpotAngle);
+        float outerCos = Mathf.Cos(Mathf.Deg2Rad * 0.5f * vl.spotAngle);
+        float angleRangeInv = 1f / Mathf.Max(innerCos - outerCos, 0.001f);
+        otherLightSpotAngles[index] = new Vector4(angleRangeInv, -outerCos * angleRangeInv);
+    }
+
+    void SetupPointLight(int index, ref VisibleLight vl)
+    {
+        otherLightColors[index] = vl.finalColor;
+        //位置信息在本地到世界的转换矩阵的最后一列
+        Vector4 position = vl.localToWorldMatrix.GetColumn(3);
+        //将光照范围的平方的倒数储存在光源位置的w分量
+        position.w = 1f / Mathf.Max(vl.range * vl.range, 0.00001f);
+        otherLightPositions[index] = position;
+
+        otherLightSpotAngles[index] = new Vector4(0f, 1f);
     }
 
     void SetupDirectionalLight(int index, ref VisibleLight vl)
