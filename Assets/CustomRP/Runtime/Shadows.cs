@@ -234,7 +234,7 @@ public class Shadows
     void RenderOtherShadows()
     {
         //创建rt, 并指定该类型是阴影贴图
-        int atlasSize = (int)shadowSettings.directional.atlasSize;
+        int atlasSize = (int)shadowSettings.other.atlasSize;
         atlasSizes.x = atlasSize;
         atlasSizes.y = 1f / atlasSize;
         
