@@ -16,6 +16,8 @@ public class Lighting
     const int maxDirLightCount = 4;
     //定义其他类型光源的最大数量
     const int maxOtherLightCount = 64;
+    
+    static string lightsPerObjectKeyword = "_LIGHTS_PER_OBJECT";
 
     private static int
         dirLightColorId = Shader.PropertyToID("_DirectionalLightColors"),
@@ -26,7 +28,8 @@ public class Lighting
         otherLightColorsId = Shader.PropertyToID("_OtherLightColors"),
         otherLightPositionsId = Shader.PropertyToID("_OtherLightPositions"),
         otherLightDirectionsId = Shader.PropertyToID("_OtherLightDirections"),
-        otherLightSpotAnglesId = Shader.PropertyToID("_OtherLightSpotAngles");
+        otherLightSpotAnglesId = Shader.PropertyToID("_OtherLightSpotAngles"),
+        otherLightShadowDataId = Shader.PropertyToID("_OtherLightShadowData");
 
     static Vector4[] 
         directionalColors = new Vector4[maxDirLightCount],
@@ -35,33 +38,39 @@ public class Lighting
         otherLightColors = new Vector4[maxOtherLightCount],
         otherLightPositions = new Vector4[maxOtherLightCount],
         otherLightDirections = new Vector4[maxOtherLightCount],
-        otherLightSpotAngles = new Vector4[maxOtherLightCount];
+        otherLightSpotAngles = new Vector4[maxOtherLightCount],
+        otherLightShadowData = new Vector4[maxOtherLightCount];
 
     CullingResults crs;
 
     Shadows shadows = new Shadows();
 
-    public void Setup(ScriptableRenderContext context, CullingResults crs, ShadowSettings shadowSettings)
+    public void Setup(ScriptableRenderContext context, CullingResults crs, ShadowSettings shadowSettings, bool useLightsPerObject)
     {
         this.crs = crs;
         cmb.BeginSample(cmbName);
         //传递阴影数据
         shadows.Setup(context,crs,shadowSettings);
         //发送光源数据
-        SetupLights();
+        SetupLights(useLightsPerObject);
         shadows.Render();
         cmb.EndSample(cmbName);
         context.ExecuteCommandBuffer(cmb);
         cmb.Clear();
     }
 
-    void SetupLights()
+    void SetupLights(bool useLightsPerObject)
     {
+        //拿到光源索引列表
+        NativeArray<int> indexMap = useLightsPerObject ? crs.GetLightIndexMap(Allocator.Temp) : default;
+        
         NativeArray<VisibleLight> visibleLights = crs.visibleLights;
 
         int dirLightCount = 0, otherLightCount = 0;
-        for (int i = 0; i < visibleLights.Length; i++)
+        int i;
+        for (i = 0; i < visibleLights.Length; i++)
         {
+            int newIndex = -1;
             VisibleLight vl = visibleLights[i];
             switch (vl.lightType)
             {
@@ -75,18 +84,38 @@ public class Lighting
                 case LightType.Point:
                     if (otherLightCount < maxOtherLightCount)
                     {
+                        newIndex = otherLightCount;
                         SetupPointLight(otherLightCount++, ref vl);
                     }
                     break;
                 case LightType.Spot:
                     if (otherLightCount < maxOtherLightCount)
                     {
+                        newIndex = otherLightCount;
                         SetupSpotLight(otherLightCount++, ref vl);
                     }
                     break;
             }
-            
+            if (useLightsPerObject)
+            {
+                indexMap[i] = newIndex;
+            }
         }
+
+        if (useLightsPerObject)
+        {
+            for (; i < indexMap.Length; i++)
+            {
+                indexMap[i] = -1;
+            }
+            crs.SetLightIndexMap(indexMap);
+            indexMap.Dispose();
+        }
+        else
+        {
+            Shader.DisableKeyword(lightsPerObjectKeyword);
+        }
+
         cmb.SetGlobalInt(dirLightCountId,dirLightCount);
         if (dirLightCount > 0)
         {
@@ -102,6 +131,7 @@ public class Lighting
             cmb.SetGlobalVectorArray(otherLightPositionsId, otherLightPositions);
             cmb.SetGlobalVectorArray(otherLightDirectionsId, otherLightDirections);
             cmb.SetGlobalVectorArray(otherLightSpotAnglesId, otherLightSpotAngles);
+            cmb.SetGlobalVectorArray(otherLightShadowDataId, otherLightShadowData);
         }
         
     }
@@ -121,6 +151,8 @@ public class Lighting
         float outerCos = Mathf.Cos(Mathf.Deg2Rad * 0.5f * vl.spotAngle);
         float angleRangeInv = 1f / Mathf.Max(innerCos - outerCos, 0.001f);
         otherLightSpotAngles[index] = new Vector4(angleRangeInv, -outerCos * angleRangeInv);
+
+        otherLightShadowData[index] = shadows.ReserveOtherShadows(light, index);
     }
 
     void SetupPointLight(int index, ref VisibleLight vl)
@@ -133,6 +165,9 @@ public class Lighting
         otherLightPositions[index] = position;
 
         otherLightSpotAngles[index] = new Vector4(0f, 1f);
+        
+        Light light = vl.light;
+        otherLightShadowData[index] = shadows.ReserveOtherShadows(light, index);
     }
 
     void SetupDirectionalLight(int index, ref VisibleLight vl)

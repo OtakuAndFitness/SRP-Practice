@@ -9,7 +9,6 @@ public partial class CustomRenderPipeline
 {
     partial void InitializeForEditor();
     
-
 #if UNITY_EDITOR
     partial void InitializeForEditor()
     {

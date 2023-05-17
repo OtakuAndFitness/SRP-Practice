@@ -29,7 +29,8 @@ CBUFFER_START(UnityPerDraw)
     float4 unity_ProbesOcclusion;
     //ReflectionProbe
     float4 unity_SpecCube0_HDR;
-    
+    real4 unity_LightData;
+    real4 unity_LightIndices[2];
 CBUFFER_END
 
 float4x4 unity_MatrixV;

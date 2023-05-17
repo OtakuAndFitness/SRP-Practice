@@ -24,7 +24,7 @@ public partial class CameraRenderer
 
     Lighting lighting = new Lighting();
     
-    public void Render(ScriptableRenderContext context, Camera camera, bool useDynamicBatching, bool useGPUInstancing, ShadowSettings shadowSettings)
+    public void Render(ScriptableRenderContext context, Camera camera, bool useDynamicBatching, bool useGPUInstancing, bool useLightPerObject, ShadowSettings shadowSettings)
     {
         this.context = context;
         this.camera = camera;
@@ -40,12 +40,12 @@ public partial class CameraRenderer
         cmb.BeginSample(SampleName);
         ExecuteBuffer();
         //设置光照信息，包含阴影信息，但阴影自己有个脚本来处理
-        lighting.Setup(context,crs,shadowSettings);
+        lighting.Setup(context,crs,shadowSettings, useLightPerObject);
         cmb.EndSample(SampleName);
         
         Setup();
         
-        DrawVisibleGeometry(useDynamicBatching, useGPUInstancing);
+        DrawVisibleGeometry(useDynamicBatching, useGPUInstancing, useLightPerObject);
         
         //暴露srp不支持的shader
         DrawUnsupportShaders();
@@ -88,8 +88,10 @@ public partial class CameraRenderer
         context.ExecuteCommandBuffer(cmb);
         cmb.Clear();
     }
-    void DrawVisibleGeometry(bool useDynamicBatching, bool useGPUInstancing)
+    void DrawVisibleGeometry(bool useDynamicBatching, bool useGPUInstancing, bool useLightsPerObject)
     {
+        PerObjectData lightsPerObjectFlags = useLightsPerObject ? PerObjectData.LightData | PerObjectData.LightIndices : PerObjectData.None;
+        
         SortingSettings sss = new SortingSettings()
         {
             criteria = SortingCriteria.CommonOpaque
@@ -100,7 +102,7 @@ public partial class CameraRenderer
             //设置渲染时批处理的使用状态
             enableDynamicBatching = useDynamicBatching,
             enableInstancing = useGPUInstancing,
-            perObjectData = PerObjectData.Lightmaps | PerObjectData.ShadowMask | PerObjectData.LightProbe | PerObjectData.OcclusionProbe | PerObjectData.LightProbeProxyVolume | PerObjectData.OcclusionProbeProxyVolume | PerObjectData.ReflectionProbes
+            perObjectData = PerObjectData.Lightmaps | PerObjectData.ShadowMask | PerObjectData.LightProbe | PerObjectData.OcclusionProbe | PerObjectData.LightProbeProxyVolume | PerObjectData.OcclusionProbeProxyVolume | PerObjectData.ReflectionProbes | lightsPerObjectFlags
         };
         //渲染CustomLit表示的pass块
         dss.SetShaderPassName(1,litId);
