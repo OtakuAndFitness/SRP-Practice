@@ -78,21 +78,21 @@ public class Lighting
                     if (dirLightCount < maxDirLightCount)
                     {
                         //VisibleLight结构比较大，不要拷贝副本了
-                        SetupDirectionalLight(dirLightCount++, ref vl);
+                        SetupDirectionalLight(dirLightCount++, i, ref vl);
                     }
                     break;
                 case LightType.Point:
                     if (otherLightCount < maxOtherLightCount)
                     {
                         newIndex = otherLightCount;
-                        SetupPointLight(otherLightCount++, ref vl);
+                        SetupPointLight(otherLightCount++, i, ref vl);
                     }
                     break;
                 case LightType.Spot:
                     if (otherLightCount < maxOtherLightCount)
                     {
                         newIndex = otherLightCount;
-                        SetupSpotLight(otherLightCount++, ref vl);
+                        SetupSpotLight(otherLightCount++, i, ref vl);
                     }
                     break;
             }
@@ -137,7 +137,7 @@ public class Lighting
     }
 
     //将聚光灯光源的颜色、位置和方向信息储存到数组
-    void SetupSpotLight(int index, ref VisibleLight vl)
+    void SetupSpotLight(int index, int visibleIndex, ref VisibleLight vl)
     {
         otherLightColors[index] = vl.finalColor;
         Vector4 position = vl.localToWorldMatrix.GetColumn(3);
@@ -152,10 +152,10 @@ public class Lighting
         float angleRangeInv = 1f / Mathf.Max(innerCos - outerCos, 0.001f);
         otherLightSpotAngles[index] = new Vector4(angleRangeInv, -outerCos * angleRangeInv);
 
-        otherLightShadowData[index] = shadows.ReserveOtherShadows(light, index);
+        otherLightShadowData[index] = shadows.ReserveOtherShadows(light, visibleIndex);
     }
 
-    void SetupPointLight(int index, ref VisibleLight vl)
+    void SetupPointLight(int index, int visibleIndex, ref VisibleLight vl)
     {
         otherLightColors[index] = vl.finalColor;
         //位置信息在本地到世界的转换矩阵的最后一列
@@ -167,16 +167,16 @@ public class Lighting
         otherLightSpotAngles[index] = new Vector4(0f, 1f);
         
         Light light = vl.light;
-        otherLightShadowData[index] = shadows.ReserveOtherShadows(light, index);
+        otherLightShadowData[index] = shadows.ReserveOtherShadows(light, visibleIndex);
     }
 
-    void SetupDirectionalLight(int index, ref VisibleLight vl)
+    void SetupDirectionalLight(int index, int visibleIndex, ref VisibleLight vl)
     {
         directionalColors[index] = vl.finalColor;//需要去CustomRenderPipeline那里设置线性颜色才是线性的
         directionalDirs[index] = -vl.localToWorldMatrix.GetColumn(2);
         
         //储存阴影数据
-        dirLightShadowData[index] = shadows.ReserveDirectionalShadows(vl.light, index);
+        dirLightShadowData[index] = shadows.ReserveDirectionalShadows(vl.light, visibleIndex);
     }
 
     public void Cleanup()

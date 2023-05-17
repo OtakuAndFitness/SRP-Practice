@@ -108,7 +108,7 @@ ShadowData GetShadowData(Surface surfaceWS)
         }
     }
     //如果超出最后一个级联范围，标识符设置为0，不对阴影进行采样
-    if (i==_CascadeCount)
+    if (i==_CascadeCount && _CascadeCount > 0)
     {
         data.strength = 0.0;
     }
@@ -168,6 +168,12 @@ float GetCascadedShadow(DirectionalShadowData directional, ShadowData global, Su
         shadow = lerp(FilterDirectionalShadow(positionSTS), shadow, global.cascadeBlend);
     }
     return shadow;
+}
+
+//得到非定向光源的实时阴影衰减
+float GetOtherShadow(OtherShadowData other, ShadowData global, Surface surfaceWS)
+{
+    return 1.0;
 }
 
 //得到烘焙阴影的衰减值
@@ -243,7 +249,8 @@ float GetOtherShadowAttenuation(OtherShadowData other, ShadowData global, Surfac
         shadow = GetBakedShadow(global.shadowMask, other.shadowMaskChannel, other.strength);
     }else
     {
-        shadow = 1.0;
+        shadow = GetOtherShadow(other, global, surfaceWS);
+        shadow = MixBakedAndRealtimeShadows(global,shadow,other.shadowMaskChannel, other.strength);
     }
     return shadow;
 }
