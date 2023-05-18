@@ -13,13 +13,11 @@ public class Lighting
         name = cmbName
     };
 
-    const int maxDirLightCount = 4;
-    //定义其他类型光源的最大数量
-    const int maxOtherLightCount = 64;
-    
+    const int maxDirLightCount = 4, maxOtherLightCount = 64;
+
     static string lightsPerObjectKeyword = "_LIGHTS_PER_OBJECT";
 
-    private static int
+    static int
         dirLightColorId = Shader.PropertyToID("_DirectionalLightColors"),
         dirLightDirectionsId = Shader.PropertyToID("_DirectionalLightDirections"),
         dirLightCountId = Shader.PropertyToID("_DirectionalLightCount"),
@@ -110,6 +108,7 @@ public class Lighting
             }
             crs.SetLightIndexMap(indexMap);
             indexMap.Dispose();
+            Shader.EnableKeyword(lightsPerObjectKeyword);
         }
         else
         {
