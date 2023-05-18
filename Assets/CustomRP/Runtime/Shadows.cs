@@ -35,6 +35,7 @@ public class Shadows
         public int visibleLightIndex;
         public float slopeScaleBias;
         public float normalBias;
+        public bool isPoint;
     }
     
     //PCF滤波模式
@@ -76,7 +77,7 @@ public class Shadows
     //已储存的可投射阴影的平行光数量
     int shadowedDirectionalLightCount, shadowedOtherLightCount;
 
-    static int
+    private static int
         dirShadowAtlasId = Shader.PropertyToID("_DirectionalShadowAtlas"),
 
         dirShadowMatricesId = Shader.PropertyToID("_DirectionalShadowMatrices"),
@@ -91,7 +92,9 @@ public class Shadows
         //级联数据
         cascadeDataId = Shader.PropertyToID("_CascadeData"),
         otherShadowAtlasId = Shader.PropertyToID("_OtherShadowAtlas"),
-        otherShadowMatricesId = Shader.PropertyToID("_OtherShadowMatrices");
+        otherShadowMatricesId = Shader.PropertyToID("_OtherShadowMatrices"),
+        shadowPancakingId = Shader.PropertyToID("_ShadowPancaking"),
+        otherShadowTilesId = Shader.PropertyToID("_OtherShadowTiles");
     
     //光源的阴影转换矩阵
     static Matrix4x4[] 
@@ -102,7 +105,8 @@ public class Shadows
     static Vector4[] 
         cascadeCullingSpheres = new Vector4[maxCascades],
 
-        cascadeData = new Vector4[maxCascades];
+        cascadeData = new Vector4[maxCascades],
+        otherShaodwTiles = new Vector4[maxShadowedOtherLightCount];
     
     Vector4 atlasSizes;
     
@@ -179,6 +183,8 @@ public class Shadows
             useShadowMask = true;
             maskChannel = lightBaking.occlusionMaskChannel;
         }
+        bool isPoint = light.type == LightType.Point;
+        int newLightCount = shadowedOtherLightCount + (isPoint ? 6 : 1);
         if (shadowedOtherLightCount >= maxShadowedOtherLightCount || !crs.GetShadowCasterBounds(visibleLightIndex, out Bounds bounds))
         {
             return new Vector4(-light.shadowStrength, 0f, 0f, maskChannel);
@@ -188,10 +194,12 @@ public class Shadows
         {
             visibleLightIndex = visibleLightIndex,
             slopeScaleBias = light.shadowBias,
-            normalBias = light.shadowNormalBias
+            normalBias = light.shadowNormalBias,
+            isPoint = isPoint
         };
-        
-        return new Vector4(light.shadowStrength, shadowedOtherLightCount++, 0f, maskChannel);
+        Vector4 data = new Vector4(light.shadowStrength, shadowedOtherLightCount, isPoint ? 1f: 0f, maskChannel);
+        shadowedOtherLightCount = newLightCount;
+        return data;
 
     }
 
@@ -231,34 +239,43 @@ public class Shadows
         ExecuteBuffer();
     }
 
-    void RenderOtherShadows()
+    void RenderDirectionalShadows(int index, int split, int tileSize)
     {
-        //创建rt, 并指定该类型是阴影贴图
-        int atlasSize = (int)shadowSettings.other.atlasSize;
-        atlasSizes.x = atlasSize;
-        atlasSizes.y = 1f / atlasSize;
-        
-        cmb.GetTemporaryRT(otherShadowAtlasId, atlasSize, atlasSize, 32, FilterMode.Bilinear, RenderTextureFormat.Shadowmap);
-        cmb.SetRenderTarget(otherShadowAtlasId, RenderBufferLoadAction.DontCare,RenderBufferStoreAction.Store);
-        cmb.ClearRenderTarget(true,false,Color.clear);
-        
-        cmb.BeginSample(cmbName);
-        ExecuteBuffer();
-        //要分割的图块大小和数量
-        int tiles = shadowedOtherLightCount;
-        int split = tiles <= 1 ? 1 : tiles <= 4 ? 2 : 4;
-        int tileSize = atlasSize / split;
-        for (int i = 0; i < shadowedDirectionalLightCount; i++)
+        ShadowedDirectionalLight light = shadowedDirectionalLights[index];
+        ShadowDrawingSettings shadowDrawingSettings = new ShadowDrawingSettings(crs, light.visibleLightIndex);
+        //得到级联阴影贴图需要的参数
+        int cascadeCount = shadowSettings.directional.cascadeCount;
+        int tileOffset = index * cascadeCount;
+        Vector3 ratios = shadowSettings.directional.CascadeRatios;
+        float cullingFactor = Mathf.Max(0f, 0.8f - shadowSettings.directional.cascadeFade);
+        float tileScale = 1f / split;
+        for (int i = 0; i < cascadeCount; i++)
         {
-            RenderSpotShadows(i, split, tileSize);
-        }
-        //阴影转换矩阵传入GPU
-        cmb.SetGlobalMatrixArray(otherShadowMatricesId, otherShadowMatrices);
-        SetKeywords(otherFilterKeywords, (int)shadowSettings.other.filter - 1);
-        cmb.EndSample(cmbName);
-        ExecuteBuffer();
-    }
+            crs.ComputeDirectionalShadowMatricesAndCullingPrimitives(light.visibleLightIndex, i, cascadeCount,ratios, tileSize, light.nearPlaneOffset,
+                out Matrix4x4 viewMatrix, out Matrix4x4 projectionMatrix, out ShadowSplitData shadowSplitData);
+            //得到第一个光源的级联包围球数据
+            if (index == 0)
+            {
+                //设置级联数据
+                SetCascadeData(i, shadowSplitData.cullingSphere, tileSize);
 
+            }
+            //剔除偏差
+            shadowSplitData.shadowCascadeBlendCullingFactor = cullingFactor;
+            shadowDrawingSettings.splitData = shadowSplitData;
+            //调整图块索引，它等于光源的图块偏移加上级联的索引
+            int tileIndex = tileOffset + i;
+            dirShadowMatrices[tileIndex] = ConvertToAtlasMatrix(projectionMatrix * viewMatrix, SetTileViewPort(tileIndex, split, tileSize), tileScale);
+            //设置视图投影矩阵
+            cmb.SetViewProjectionMatrices(viewMatrix,projectionMatrix);
+            cmb.SetGlobalDepthBias(0,light.slopeScaleBias);
+            //绘制阴影
+            ExecuteBuffer();
+            context.DrawShadows(ref shadowDrawingSettings);
+            cmb.SetGlobalDepthBias(0f,0f);
+        }
+    }
+    
     void RenderDirectionalShadows()
     {
         //创建rt, 并指定该类型是阴影贴图
@@ -269,6 +286,7 @@ public class Shadows
         cmb.GetTemporaryRT(dirShadowAtlasId, atlasSize, atlasSize, 32, FilterMode.Bilinear, RenderTextureFormat.Shadowmap);
         cmb.SetRenderTarget(dirShadowAtlasId, RenderBufferLoadAction.DontCare,RenderBufferStoreAction.Store);
         cmb.ClearRenderTarget(true,false,Color.clear);
+        cmb.SetGlobalFloat(shadowPancakingId, 1f);
         
         cmb.BeginSample(cmbName);
         ExecuteBuffer();
@@ -291,41 +309,90 @@ public class Shadows
         cmb.EndSample(cmbName);
         ExecuteBuffer();
     }
-
-    void RenderDirectionalShadows(int index, int split, int tileSize)
+    
+    //储存非定向光阴影图块数据
+    void SetOtherTileData(int index, Vector2 offset, float scale, float bias)
     {
-        ShadowedDirectionalLight light = shadowedDirectionalLights[index];
-        ShadowDrawingSettings shadowDrawingSettings = new ShadowDrawingSettings(crs, light.visibleLightIndex);
-        //得到级联阴影贴图需要的参数
-        int cascadeCount = shadowSettings.directional.cascadeCount;
-        int tileOffset = index * cascadeCount;
-        Vector3 ratios = shadowSettings.directional.CascadeRatios;
-        float cullingFactor = Mathf.Max(0f, 0.8f - shadowSettings.directional.cascadeFade);
-        for (int i = 0; i < cascadeCount; i++)
-        {
-            crs.ComputeDirectionalShadowMatricesAndCullingPrimitives(light.visibleLightIndex, i, cascadeCount,ratios, tileSize, light.nearPlaneOffset,
-                out Matrix4x4 viewMatrix, out Matrix4x4 projectionMatrix, out ShadowSplitData shadowSplitData);
-            //得到第一个光源的级联包围球数据
-            if (index == 0)
-            {
-                //设置级联数据
-                SetCascadeData(i, shadowSplitData.cullingSphere, tileSize);
+        float border = atlasSizes.w * 0.5f;
+        Vector4 data;
+        data.x = offset.x * scale + border;
+        data.y = offset.y * scale + border;
+        data.z = scale - border - border;
+        data.w = bias;
+        otherShaodwTiles[index] = data;
+    }
 
+    void RenderOtherShadows()
+    {
+        //创建rt, 并指定该类型是阴影贴图
+        int atlasSize = (int)shadowSettings.other.atlasSize;
+        atlasSizes.x = atlasSize;
+        atlasSizes.y = 1f / atlasSize;
+        
+        cmb.GetTemporaryRT(otherShadowAtlasId, atlasSize, atlasSize, 32, FilterMode.Bilinear, RenderTextureFormat.Shadowmap);
+        cmb.SetRenderTarget(otherShadowAtlasId, RenderBufferLoadAction.DontCare,RenderBufferStoreAction.Store);
+        cmb.ClearRenderTarget(true,false,Color.clear);
+        cmb.SetGlobalFloat(shadowPancakingId, 0f);
+
+        cmb.BeginSample(cmbName);
+        ExecuteBuffer();
+        //要分割的图块大小和数量
+        int tiles = shadowedOtherLightCount;
+        int split = tiles <= 1 ? 1 : tiles <= 4 ? 2 : 4;
+        int tileSize = atlasSize / split;
+        for (int i = 0; i < shadowedDirectionalLightCount;)
+        {
+            if (shadowedOtherLights[i].isPoint)
+            {
+                RenderPointShadows(i, split, tileSize);
+                i += 6;
             }
-            //剔除偏差
-            shadowSplitData.shadowCascadeBlendCullingFactor = cullingFactor;
+            else
+            {
+                RenderSpotShadows(i, split, tileSize);
+                i += 1;
+            }
+        }
+        //阴影转换矩阵传入GPU
+        cmb.SetGlobalMatrixArray(otherShadowMatricesId, otherShadowMatrices);
+        SetKeywords(otherFilterKeywords, (int)shadowSettings.other.filter - 1);
+        cmb.SetGlobalMatrixArray(otherShadowMatricesId, otherShadowMatrices);
+        cmb.SetGlobalVectorArray(otherShadowTilesId, otherShaodwTiles);
+        cmb.EndSample(cmbName);
+        ExecuteBuffer();
+    }
+    
+    //渲染点光源阴影
+    void RenderPointShadows(int index, int split, int tileSize)
+    {
+        ShadowedOtherLight light = shadowedOtherLights[index];
+        var shadowDrawingSettings = new ShadowDrawingSettings(crs, light.visibleLightIndex);
+        float texelSize = 2f / tileSize;
+        float filterSize = texelSize * ((float)shadowSettings.other.filter + 1f);
+        float bias = light.normalBias * filterSize * 1.4142136f;
+        float tileScale = 1f / split;
+        float fovBias = Mathf.Atan(1f + bias + filterSize) * Mathf.Rad2Deg * 2f - 90f;
+        for (int i = 0; i < 6; i++)
+        {
+            crs.ComputePointShadowMatricesAndCullingPrimitives(light.visibleLightIndex, (CubemapFace)i,fovBias,out Matrix4x4 viewMatrix,out Matrix4x4 projectionMatrix,out ShadowSplitData shadowSplitData);
+            viewMatrix.m11 = -viewMatrix.m11;
+            viewMatrix.m12 = -viewMatrix.m12;
+            viewMatrix.m13 = -viewMatrix.m13;
             shadowDrawingSettings.splitData = shadowSplitData;
-            //调整图块索引，它等于光源的图块偏移加上级联的索引
-            int tileIndex = tileOffset + i;
-            dirShadowMatrices[tileIndex] = ConvertToAtlasMatrix(projectionMatrix * viewMatrix, SetTileViewPort(tileIndex, split, tileSize), split);
+            int tileIndex = index + i;
+            Vector2 offset = SetTileViewPort(tileIndex, split, tileSize);
+            SetOtherTileData(tileIndex, offset, tileScale, bias);
+            otherShadowMatrices[tileIndex] = ConvertToAtlasMatrix(projectionMatrix * viewMatrix, offset, tileScale);
             //设置视图投影矩阵
-            cmb.SetViewProjectionMatrices(viewMatrix,projectionMatrix);
-            cmb.SetGlobalDepthBias(0,light.slopeScaleBias);
+            cmb.SetViewProjectionMatrices(viewMatrix, projectionMatrix);
+            //设置斜度比例偏差
+            cmb.SetGlobalDepthBias(0f, light.slopeScaleBias);
             //绘制阴影
             ExecuteBuffer();
             context.DrawShadows(ref shadowDrawingSettings);
             cmb.SetGlobalDepthBias(0f,0f);
         }
+
     }
     
     //渲染聚光灯阴影
@@ -335,7 +402,14 @@ public class Shadows
         var shadowDrawingSettings = new ShadowDrawingSettings(crs, light.visibleLightIndex);
         crs.ComputeSpotShadowMatricesAndCullingPrimitives(light.visibleLightIndex, out Matrix4x4 viewMatrix, out Matrix4x4 projectionMatrix, out ShadowSplitData shadowSplitData);
         shadowDrawingSettings.splitData = shadowSplitData;
-        otherShadowMatrices[index] = ConvertToAtlasMatrix(projectionMatrix * viewMatrix, SetTileViewPort(index, split, tileSize), split);
+        //计算法线偏差
+        float texelSize = 2f / (tileSize * projectionMatrix.m00);
+        float filterSize = texelSize * ((float)shadowSettings.other.filter + 1f);
+        float bias = light.normalBias * filterSize * 1.4142136f;
+        Vector2 offset = SetTileViewPort(index, split, tileSize);
+        float tileScale = 1f / split;
+        SetOtherTileData(index, offset, tileScale, bias);
+        otherShadowMatrices[index] = ConvertToAtlasMatrix(projectionMatrix * viewMatrix, offset, tileScale);
         //设置视图投影矩阵
         cmb.SetViewProjectionMatrices(viewMatrix, projectionMatrix);
         //设置斜度比例偏差
@@ -371,7 +445,7 @@ public class Shadows
     }
     
     //返回一个从世界空间到阴影图块空间的转换矩阵
-    Matrix4x4 ConvertToAtlasMatrix(Matrix4x4 m, Vector2 offset, int split)
+    Matrix4x4 ConvertToAtlasMatrix(Matrix4x4 m, Vector2 offset, float scale)
     {
         //如果使用了反向Zbuffer
         if (SystemInfo.usesReversedZBuffer)
@@ -382,7 +456,7 @@ public class Shadows
             m.m23 = -m.m23;
         }
         //设置矩阵坐标
-        float scale = 1f / split;
+        // float scale = 1f / split;
         m.m00 = (0.5f * (m.m00 + m.m30) + offset.x * m.m30) * scale;
         m.m01 = (0.5f * (m.m01 + m.m31) + offset.x * m.m31) * scale;
         m.m02 = (0.5f * (m.m02 + m.m32) + offset.x * m.m32) * scale;

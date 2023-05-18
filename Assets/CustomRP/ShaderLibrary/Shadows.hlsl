@@ -17,13 +17,29 @@
     #define DIRECTIONAL_FILTER_SETUP SampleShadow_ComputeSamples_Tent_7x7
 #endif
 
+#if defined(_OTHER_PCF3)
+    //需要4个滤波样本
+    #define OTHER_FILTER_SAMPLES 4
+    #define OTHER_FILTER_SETUP SampleShadow_ComputeSamples_Tent_3x3
+#elif defined(_OTHER_PCF5)
+    //需要9个滤波样本
+    #define OTHER_FILTER_SAMPLES 9
+    #define OTHER_FILTER_SETUP SampleShadow_ComputeSamples_Tent_5x5
+#elif defined(_OTHER_PCF7)
+    //需要16个滤波样本
+    #define OTHER_FILTER_SAMPLES 16
+    #define OTHER_FILTER_SETUP SampleShadow_ComputeSamples_Tent_7x7
+#endif
+
 #define MAX_SHADOWED_DIRECTIONAL_LIGHTS 4
 #define MAX_CASCADE_COUNT 4
+#define MAX_SHADOWED_OTHER_LIGHT_COUNT 16
 
 //阴影图集
 TEXTURE2D_SHADOW(_DirectionalShadowAtlas);
 #define SHADOW_SAMPLER sampler_linear_clamp_compare
 SAMPLER_CMP(SHADOW_SAMPLER);
+TEXTURE2D_SHADOW(_OtherShadowAtlas);
 
 CBUFFER_START(_CustomShadows)
     //级联数量和包围球数据
@@ -36,6 +52,8 @@ CBUFFER_START(_CustomShadows)
     //阴影过渡距离
     float4 _ShadowDistanceFade;
     float _ShadowAtlasSize;
+    float4x4 _OtherShadowMatrices[MAX_SHADOWED_OTHER_LIGHT_COUNT];
+    float4 _OtherShadowTiles[MAX_SHADOWED_OTHER_LIGHT_COUNT];
 CBUFFER_END
 
 struct ShadowMask
@@ -69,7 +87,21 @@ struct DirectionalShadowData
 struct OtherShadowData
 {
     float strength;
+    int tileIndex;
     int shadowMaskChannel;
+    float3 lightPositionWS;
+    float3 spotDirectionWS;
+    bool isPoint;
+    float3 lightDirectionWS;
+};
+
+static const float3 pointShadowPlanes[6] = {
+    float3(-1.0,0.0,0.0),
+    float3(1.0,0.0,0.0),
+    float3(0.0,-1.0,0.0),
+    float3(0.0,1.0,0.0),
+    float3(0.0,0.0,-1.0),
+    float3(0.0,0.0,1.0)
 };
 
 //计算阴影过渡时的强度
@@ -125,6 +157,50 @@ ShadowData GetShadowData(Surface surfaceWS)
     return data;
 }
 
+float SampleOtherShadowAtlas(float3 positionSTS, float3 bounds)
+{
+    positionSTS.xy = clamp(positionSTS.xy, bounds.xy, bounds.xy + bounds.z);
+    return SAMPLE_TEXTURE2D_SHADOW(_OtherShadowAtlas, SHADOW_SAMPLER, positionSTS);
+}
+
+float FilterOtherShadow(float3 positionSTS, float3 bounds)
+{
+    #if defined(OTHER_FILTER_SETUP)
+    real weights[OTHER_FILTER_SAMPLES];
+    real2 positions[OTHER_FILTER_SAMPLES];
+    float4 size = _ShadowAtlasSize.wwzz;
+    OTHER_FILTER_SETUP(size, positionSTS.xy, weights, positions);
+    float shadow = 0;
+    for (int i=0;i<OTHER_FILTER_SAMPLES;i++)
+    {
+        shadow += weights[i] * SampleOtherShadowAtlas(float3(positions[i].xy, positionSTS.z), bounds);
+    }
+    return shadow;
+    #else
+    return SampleOtherShadowAtlas(positionSTS, bounds);
+#endif
+}
+
+//得到非定向光源的实时阴影衰减
+float GetOtherShadow(OtherShadowData other, ShadowData global, Surface surfaceWS)
+{
+    float tileIndex = other.tileIndex;
+    float3 lightPlane = other.spotDirectionWS;
+    if (other.isPoint)
+    {
+        float faceOffset = CubeMapFaceID(-other.lightDirectionWS);
+        tileIndex += faceOffset;
+        lightPlane = pointShadowPlanes[faceOffset];
+    }
+    float4 tileData = _OtherShadowTiles[tileIndex];
+    float3 surfaceToLight = other.lightPositionWS - surfaceWS.position;
+    float distanceToLightPlane = dot(surfaceToLight, other.spotDirectionWS);
+    float3 normalBias = surfaceWS.interpolatedNormal * (distanceToLightPlane * tileData.w);
+    float4 positionSTS = mul(_OtherShadowMatrices[tileIndex], float4(surfaceWS.position + normalBias, 1.0f));
+    //透视投影，变换位置XYZ除以Z
+    return FilterOtherShadow(positionSTS.xyz / positionSTS.w, tileData.xyz);
+}
+
 //采样阴影图集
 float SampleDirectionalShadowAtlas(float3 positionSTS)
 {
@@ -168,12 +244,6 @@ float GetCascadedShadow(DirectionalShadowData directional, ShadowData global, Su
         shadow = lerp(FilterDirectionalShadow(positionSTS), shadow, global.cascadeBlend);
     }
     return shadow;
-}
-
-//得到非定向光源的实时阴影衰减
-float GetOtherShadow(OtherShadowData other, ShadowData global, Surface surfaceWS)
-{
-    return 1.0;
 }
 
 //得到烘焙阴影的衰减值
