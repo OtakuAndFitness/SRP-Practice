@@ -107,7 +107,7 @@ public class Shadows
         cascadeCullingSpheres = new Vector4[maxCascades],
 
         cascadeData = new Vector4[maxCascades],
-        otherShaodwTiles = new Vector4[maxShadowedOtherLightCount];
+        otherShadowTiles = new Vector4[maxShadowedOtherLightCount];
     
     Vector4 atlasSizes;
     
@@ -327,7 +327,7 @@ public class Shadows
         data.y = offset.y * scale + border;
         data.z = scale - border - border;
         data.w = bias;
-        otherShaodwTiles[index] = data;
+        otherShadowTiles[index] = data;
     }
 
     void RenderOtherShadows()
@@ -343,13 +343,13 @@ public class Shadows
         cmb.SetGlobalFloat(shadowPancakingId, 0f);
         cmb.BeginSample(cmbName);
         ExecuteBuffer();
-        
+
         //要分割的图块大小和数量
         int tiles = shadowedOtherLightCount;
         int split = tiles <= 1 ? 1 : tiles <= 4 ? 2 : 4;
         int tileSize = atlasSize / split;
         
-        for (int i = 0; i < shadowedDirectionalLightCount;)
+        for (int i = 0; i < shadowedOtherLightCount;)
         {
             if (shadowedOtherLights[i].isPoint)
             {
@@ -364,7 +364,7 @@ public class Shadows
         }
         //阴影转换矩阵传入GPU
         cmb.SetGlobalMatrixArray(otherShadowMatricesId, otherShadowMatrices);
-        cmb.SetGlobalVectorArray(otherShadowTilesId, otherShaodwTiles);
+        cmb.SetGlobalVectorArray(otherShadowTilesId, otherShadowTiles);
         SetKeywords(otherFilterKeywords, (int)shadowSettings.other.filter - 1);
         cmb.EndSample(cmbName);
         ExecuteBuffer();
