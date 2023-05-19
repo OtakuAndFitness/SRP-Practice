@@ -165,7 +165,7 @@ float SampleOtherShadowAtlas(float3 positionSTS, float3 bounds)
 
 float FilterOtherShadow(float3 positionSTS, float3 bounds)
 {
-    #if defined(OTHER_FILTER_SETUP)
+#if defined(OTHER_FILTER_SETUP)
     real weights[OTHER_FILTER_SAMPLES];
     real2 positions[OTHER_FILTER_SAMPLES];
     float4 size = _ShadowAtlasSize.wwzz;
@@ -176,7 +176,7 @@ float FilterOtherShadow(float3 positionSTS, float3 bounds)
         shadow += weights[i] * SampleOtherShadowAtlas(float3(positions[i].xy, positionSTS.z), bounds);
     }
     return shadow;
-    #else
+#else
     return SampleOtherShadowAtlas(positionSTS, bounds);
 #endif
 }
@@ -194,7 +194,7 @@ float GetOtherShadow(OtherShadowData other, ShadowData global, Surface surfaceWS
     }
     float4 tileData = _OtherShadowTiles[tileIndex];
     float3 surfaceToLight = other.lightPositionWS - surfaceWS.position;
-    float distanceToLightPlane = dot(surfaceToLight, other.spotDirectionWS);
+    float distanceToLightPlane = dot(surfaceToLight, lightPlane);
     float3 normalBias = surfaceWS.interpolatedNormal * (distanceToLightPlane * tileData.w);
     float4 positionSTS = mul(_OtherShadowMatrices[tileIndex], float4(surfaceWS.position + normalBias, 1.0f));
     //透视投影，变换位置XYZ除以Z
@@ -314,9 +314,9 @@ float GetOtherShadowAttenuation(OtherShadowData other, ShadowData global, Surfac
 #endif
 
     float shadow;
-    if (other.strength > 0.0)
+    if (other.strength * global.strength <= 0.0)
     {
-        shadow = GetBakedShadow(global.shadowMask, other.shadowMaskChannel, other.strength);
+        shadow = GetBakedShadow(global.shadowMask, other.shadowMaskChannel, abs(other.strength));
     }else
     {
         shadow = GetOtherShadow(other, global, surfaceWS);
