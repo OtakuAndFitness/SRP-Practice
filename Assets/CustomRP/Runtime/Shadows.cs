@@ -322,8 +322,8 @@ public class Shadows
     {
         //创建rt, 并指定该类型是阴影贴图
         int atlasSize = (int)shadowSettings.other.atlasSize;
-        atlasSizes.x = atlasSize;
-        atlasSizes.y = 1f / atlasSize;
+        atlasSizes.z = atlasSize;
+        atlasSizes.w = 1f / atlasSize;
         
         cmb.GetTemporaryRT(otherShadowAtlasId, atlasSize, atlasSize, 32, FilterMode.Bilinear, RenderTextureFormat.Shadowmap);
         cmb.SetRenderTarget(otherShadowAtlasId, RenderBufferLoadAction.DontCare,RenderBufferStoreAction.Store);
