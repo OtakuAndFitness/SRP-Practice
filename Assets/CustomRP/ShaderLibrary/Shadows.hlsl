@@ -51,7 +51,7 @@ CBUFFER_START(_CustomShadows)
     float4x4 _DirectionalShadowMatrices[MAX_SHADOWED_DIRECTIONAL_LIGHTS * MAX_CASCADE_COUNT];
     //阴影过渡距离
     float4 _ShadowDistanceFade;
-    float _ShadowAtlasSize;
+    float4 _ShadowAtlasSize;
     float4x4 _OtherShadowMatrices[MAX_SHADOWED_OTHER_LIGHT_COUNT];
     float4 _OtherShadowTiles[MAX_SHADOWED_OTHER_LIGHT_COUNT];
 CBUFFER_END

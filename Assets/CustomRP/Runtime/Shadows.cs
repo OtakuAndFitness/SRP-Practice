@@ -317,18 +317,6 @@ public class Shadows
         cascadeCullingSpheres[index] = cullingSphere;
         cascadeData[index] = new Vector4(1f / cullingSphere.w, filterSize * 1.4142136f);
     }
-    
-    //储存非定向光阴影图块数据
-    void SetOtherTileData(int index, Vector2 offset, float scale, float bias)
-    {
-        float border = atlasSizes.w * 0.5f;
-        Vector4 data;
-        data.x = offset.x * scale + border;
-        data.y = offset.y * scale + border;
-        data.z = scale - border - border;
-        data.w = bias;
-        otherShadowTiles[index] = data;
-    }
 
     void RenderOtherShadows()
     {
@@ -426,6 +414,18 @@ public class Shadows
         ExecuteBuffer();
         context.DrawShadows(ref shadowDrawingSettings);
         cmb.SetGlobalDepthBias(0f,0f);
+    }
+    
+    //储存非定向光阴影图块数据
+    void SetOtherTileData(int index, Vector2 offset, float scale, float bias)
+    {
+        float border = atlasSizes.w * 0.5f;
+        Vector4 data;
+        data.x = offset.x * scale + border;
+        data.y = offset.y * scale + border;
+        data.z = scale - border - border;
+        data.w = bias;
+        otherShadowTiles[index] = data;
     }
 
     //调整渲染视口来渲染单个图块
