@@ -2073,7 +2073,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fbb48d0005ac54b63b1f4f42645ca6c9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  baseColor: {r: 1, g: 1, b: 1, a: 1}
+  baseColor: {r: 0.7294118, g: 0.85882354, b: 1, a: 1}
   alphaCutoff: 0.5
   metallic: 0
   smoothness: 0.5
@@ -3110,7 +3110,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fbb48d0005ac54b63b1f4f42645ca6c9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  baseColor: {r: 1, g: 1, b: 1, a: 1}
+  baseColor: {r: 0.8, g: 0.6666667, b: 1, a: 1}
   alphaCutoff: 0.5
   metallic: 0
   smoothness: 0.5
@@ -3685,7 +3685,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fbb48d0005ac54b63b1f4f42645ca6c9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  baseColor: {r: 1, g: 1, b: 1, a: 1}
+  baseColor: {r: 0.68235296, g: 0.84313726, b: 1, a: 1}
   alphaCutoff: 0.5
   metallic: 0
   smoothness: 0.5
@@ -3915,7 +3915,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fbb48d0005ac54b63b1f4f42645ca6c9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  baseColor: {r: 1, g: 1, b: 1, a: 1}
+  baseColor: {r: 0.7294118, g: 1, b: 0.83137256, a: 1}
   alphaCutoff: 0.5
   metallic: 0
   smoothness: 0.5
@@ -6455,7 +6455,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fbb48d0005ac54b63b1f4f42645ca6c9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  baseColor: {r: 1, g: 1, b: 1, a: 1}
+  baseColor: {r: 0.8, g: 0.6666667, b: 1, a: 1}
   alphaCutoff: 0.5
   metallic: 0
   smoothness: 0.5
@@ -6570,7 +6570,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fbb48d0005ac54b63b1f4f42645ca6c9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  baseColor: {r: 1, g: 1, b: 1, a: 1}
+  baseColor: {r: 1, g: 0.99607843, b: 0.68235296, a: 1}
   alphaCutoff: 0.5
   metallic: 0
   smoothness: 0.5
@@ -7415,10 +7415,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fbb48d0005ac54b63b1f4f42645ca6c9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  baseColor: {r: 1, g: 1, b: 1, a: 1}
+  baseColor: {r: 0.7254902, g: 0.63529414, b: 1, a: 1}
   alphaCutoff: 0.5
   metallic: 0
-  smoothness: 0.5
+  smoothness: 0.735
   emissionColor: {r: 0, g: 0, b: 0, a: 1}
 --- !u!1 &1170425999
 GameObject:
@@ -11331,7 +11331,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fbb48d0005ac54b63b1f4f42645ca6c9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  baseColor: {r: 1, g: 1, b: 1, a: 1}
+  baseColor: {r: 0.7294118, g: 0.85882354, b: 1, a: 1}
   alphaCutoff: 0.5
   metallic: 0
   smoothness: 0.5
