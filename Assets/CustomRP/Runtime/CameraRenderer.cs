@@ -21,10 +21,14 @@ public partial class CameraRenderer
     CullingResults crs;
     static ShaderTagId unlitId = new ShaderTagId("SRPDefaultUnlit");
     static ShaderTagId litId = new ShaderTagId("CustomLight");
+    
+    static int framebufferId = Shader.PropertyToID("_CameraFrameBuffer");
 
     Lighting lighting = new Lighting();
+
+    PostFXStack postFXStack = new PostFXStack();
     
-    public void Render(ScriptableRenderContext context, Camera camera, bool useDynamicBatching, bool useGPUInstancing, bool useLightPerObject, ShadowSettings shadowSettings)
+    public void Render(ScriptableRenderContext context, Camera camera, bool useDynamicBatching, bool useGPUInstancing, bool useLightPerObject, ShadowSettings shadowSettings, PostFXSettings postFXSettings)
     {
         this.context = context;
         this.camera = camera;
@@ -41,6 +45,7 @@ public partial class CameraRenderer
         ExecuteBuffer();
         //设置光照信息，包含阴影信息，但阴影自己有个脚本来处理
         lighting.Setup(context,crs,shadowSettings, useLightPerObject);
+        postFXStack.Setup(context, camera,postFXSettings);
         cmb.EndSample(SampleName);
         
         Setup();
@@ -51,9 +56,14 @@ public partial class CameraRenderer
         DrawUnsupportShaders();
         
         //绘制Gizmos
-        DrawGizmos();
-
-        lighting.Cleanup();
+        DrawGizmosBeforeFX();
+        if (postFXStack.isActive)
+        {
+            postFXStack.Render(framebufferId);
+        }
+        DrawGizmosAfterFX();
+        Cleanup();
+        
         //context发送的渲染命令都是缓冲的，所以要通过submit来提交命令
         Submit();
     }
@@ -77,6 +87,16 @@ public partial class CameraRenderer
         context.SetupCameraProperties(camera);
         //得到相机清除状态
         CameraClearFlags ccfs = camera.clearFlags;
+
+        if (postFXStack.isActive)
+        {
+            if (ccfs > CameraClearFlags.Color)
+            {
+                ccfs = CameraClearFlags.Color;
+            }
+            cmb.GetTemporaryRT(framebufferId, camera.pixelWidth, camera.pixelHeight, 32, FilterMode.Bilinear, RenderTextureFormat.Default);
+            cmb.SetRenderTarget(framebufferId, RenderBufferLoadAction.DontCare, RenderBufferStoreAction.Store);
+        }
         //设置相机清除状态
         cmb.ClearRenderTarget(ccfs<=CameraClearFlags.Depth,ccfs == CameraClearFlags.Color,ccfs == CameraClearFlags.Color ? camera.backgroundColor.linear : Color.clear);
         cmb.BeginSample(SampleName);
@@ -128,5 +148,14 @@ public partial class CameraRenderer
         cmb.EndSample(SampleName);
         ExecuteBuffer();//真正执行
         context.Submit();
-    } 
+    }
+
+    void Cleanup()
+    {
+        lighting.Cleanup();
+        if (postFXStack.isActive)
+        {
+            cmb.ReleaseTemporaryRT(framebufferId);
+        }
+    }
 }

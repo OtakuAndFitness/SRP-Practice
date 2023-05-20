@@ -16,6 +16,7 @@ MonoBehaviour:
   useGPUInstancing: 1
   useSRPBatcher: 1
   useLightsPerObject: 1
+  postFXSettings: {fileID: 11400000, guid: fbb03f604d2911a46874498c7dd420c2, type: 2}
   shadowSettings:
     maxDistance: 15
     distanceFade: 0.1
