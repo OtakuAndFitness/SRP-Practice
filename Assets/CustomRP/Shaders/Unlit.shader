@@ -45,10 +45,9 @@ Shader "Custom/Unlit"
             
             HLSLPROGRAM
             #pragma shader_feature _ _SHADOWS_CLIP _SHADOWS_DITHER
-            #pragma shader_feature _PREMULTIPY_ALPHA
+            #pragma multi_compile_instancing
             #pragma vertex ShadowCasterPassVertex
             #pragma fragment ShadowCasterPassFragment
-            #pragma multi_compile_instancing
             #pragma target 3.5//排除OpenGL ES 2.0
             #include "ShadowCasterPass.hlsl"
             ENDHLSL

@@ -32,8 +32,6 @@ Varyings ShadowCasterPassVertex(Attributes input)
         output.positionCS.z = max(output.positionCS.z, output.positionCS.w * UNITY_NEAR_CLIP_VALUE);
     #endif
     }
-    // float4 baseST = UNITY_ACCESS_INSTANCED_PROP(UnityPerMaterial,_BaseMap_ST);
-    // output.uv = input.uv * baseST.xy + baseST.zw;
     output.uv = TransformBaseUV(input.uv);
     return output;
 }

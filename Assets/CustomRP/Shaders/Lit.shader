@@ -62,6 +62,7 @@ Shader "Custom/Lit"
             #pragma multi_compile _ _OTHER_PCF3 _OTHER_PCF5 _OTHER_PCF7
             #pragma multi_compile _ _LIGHTS_PER_OBJECT
             #pragma multi_compile _ LIGHTMAP_ON
+            #pragma multi_compile _ CASCADE_BLEND_SOFT _CASCADE_BLEND_DITHER
             #pragma multi_compile _ _SHADOW_MASK_ALWAYS _SHADOW_MASK_DISTANCE
             #pragma multi_compile _ LOD_FADE_CROSSFADE
             #pragma vertex LitPassVertex
@@ -80,12 +81,10 @@ Shader "Custom/Lit"
             
             HLSLPROGRAM
             #pragma shader_feature _ _SHADOWS_CLIP _SHADOWS_DITHER
-            #pragma shader_feature _PREMULTIPY_ALPHA
-            #pragma vertex ShadowCasterPassVertex
-            #pragma fragment ShadowCasterPassFragment
-            #pragma multi_compile _ CASCADE_BLEND_SOFT _CASCADE_BLEND_DITHER
             #pragma multi_compile _ LOD_FADE_CROSSFADE
             #pragma multi_compile_instancing
+            #pragma vertex ShadowCasterPassVertex
+            #pragma fragment ShadowCasterPassFragment
             #pragma target 3.5//排除OpenGL ES 2.0
             #include "ShadowCasterPass.hlsl"
             ENDHLSL
