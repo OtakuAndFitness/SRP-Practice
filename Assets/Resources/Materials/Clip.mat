@@ -7,7 +7,7 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: CubeClip
+  m_Name: Clip
   m_Shader: {fileID: 4800000, guid: e6f750a8fe059471db7709b28217a2ce, type: 3}
   m_ValidKeywords:
   - _CLIPPING
