@@ -18,6 +18,7 @@ public partial class PostFXStack
         BloomVertical,
         BloomCombine,
         BloomPrefilter,
+        BloomPrefilterFireflies,
         Copy
     }
 
@@ -38,6 +39,8 @@ public partial class PostFXStack
     Camera camera;
 
     PostFXSettings postFXSettings;
+
+    bool useHDR;
     
     public bool isActive => postFXSettings != null;
 
@@ -70,9 +73,9 @@ public partial class PostFXStack
         threshold.y -= threshold.x;
         cmb.SetGlobalVector(bloomThresholdId, threshold);
         
-        RenderTextureFormat format = RenderTextureFormat.Default;
+        RenderTextureFormat format = useHDR ? RenderTextureFormat.DefaultHDR : RenderTextureFormat.Default;
         cmb.GetTemporaryRT(bloomPrefilterId, width,height,0,FilterMode.Bilinear,format);
-        Draw(sourceId,bloomPrefilterId,Pass.BloomPrefilter);
+        Draw(sourceId,bloomPrefilterId,bloom.fadeFireflies ? Pass.BloomPrefilterFireflies : Pass.BloomPrefilter);
         width /= 2;
         height /= 2;
         
@@ -125,11 +128,12 @@ public partial class PostFXStack
         cmb.EndSample("Bloom");
     }
 
-    public void Setup(ScriptableRenderContext context, Camera camera, PostFXSettings postFXSettings)
+    public void Setup(ScriptableRenderContext context, Camera camera, PostFXSettings postFXSettings, bool useHDR)
     {
         this.context = context;
         this.camera = camera;
         this.postFXSettings = camera.cameraType <= CameraType.SceneView ? postFXSettings : null;
+        this.useHDR = useHDR;
         ApplySceneViewState();
     }
 

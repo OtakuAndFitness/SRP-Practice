@@ -27,8 +27,10 @@ public partial class CameraRenderer
     Lighting lighting = new Lighting();
 
     PostFXStack postFXStack = new PostFXStack();
+
+    bool useHDR;
     
-    public void Render(ScriptableRenderContext context, Camera camera, bool useDynamicBatching, bool useGPUInstancing, bool useLightPerObject, ShadowSettings shadowSettings, PostFXSettings postFXSettings)
+    public void Render(ScriptableRenderContext context, Camera camera, bool allowHDR, bool useDynamicBatching, bool useGPUInstancing, bool useLightPerObject, ShadowSettings shadowSettings, PostFXSettings postFXSettings)
     {
         this.context = context;
         this.camera = camera;
@@ -41,11 +43,13 @@ public partial class CameraRenderer
         {
             return;
         }
+        useHDR = allowHDR && camera.allowHDR;
+        
         cmb.BeginSample(SampleName);
         ExecuteBuffer();
         //设置光照信息，包含阴影信息，但阴影自己有个脚本来处理
         lighting.Setup(context,crs,shadowSettings, useLightPerObject);
-        postFXStack.Setup(context, camera,postFXSettings);
+        postFXStack.Setup(context, camera,postFXSettings, useHDR);
         cmb.EndSample(SampleName);
         
         Setup();
@@ -94,7 +98,7 @@ public partial class CameraRenderer
             {
                 ccfs = CameraClearFlags.Color;
             }
-            cmb.GetTemporaryRT(framebufferId, camera.pixelWidth, camera.pixelHeight, 32, FilterMode.Bilinear, RenderTextureFormat.Default);
+            cmb.GetTemporaryRT(framebufferId, camera.pixelWidth, camera.pixelHeight, 32, FilterMode.Bilinear, useHDR ? RenderTextureFormat.DefaultHDR : RenderTextureFormat.Default);
             cmb.SetRenderTarget(framebufferId, RenderBufferLoadAction.DontCare, RenderBufferStoreAction.Store);
         }
         //设置相机清除状态

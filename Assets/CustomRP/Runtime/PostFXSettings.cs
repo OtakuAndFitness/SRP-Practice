@@ -28,6 +28,8 @@ public class PostFXSettings : ScriptableObject
         public float thresholdKnee;
         [Min(0f)]
         public float intensity;
+
+        public bool fadeFireflies;
     }
 
     [SerializeField]
