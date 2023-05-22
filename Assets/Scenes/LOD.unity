@@ -130,18 +130,6 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
-    - target: {fileID: 2161871621208717978, guid: 2f5e62859100a43eaaeca02977c32a39, type: 3}
-      propertyPath: m_Materials.Array.data[0]
-      value: 
-      objectReference: {fileID: 2100000, guid: 7c3c7835a7ce8394a99d221aa1493961, type: 2}
-    - target: {fileID: 2229856686029680486, guid: 2f5e62859100a43eaaeca02977c32a39, type: 3}
-      propertyPath: m_Materials.Array.data[0]
-      value: 
-      objectReference: {fileID: 2100000, guid: cfeab2981dead448e87e09943aae2545, type: 2}
-    - target: {fileID: 3317376836830454989, guid: 2f5e62859100a43eaaeca02977c32a39, type: 3}
-      propertyPath: m_Materials.Array.data[0]
-      value: 
-      objectReference: {fileID: 2100000, guid: f04cb5e54d833474391802a25a009fd5, type: 2}
     - target: {fileID: 7018173588840835613, guid: 2f5e62859100a43eaaeca02977c32a39, type: 3}
       propertyPath: m_Name
       value: LOD Group Sphere
@@ -190,10 +178,7 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    m_RemovedComponents:
-    - {fileID: 5116228073611018098, guid: 2f5e62859100a43eaaeca02977c32a39, type: 3}
-    - {fileID: 1921851598497005693, guid: 2f5e62859100a43eaaeca02977c32a39, type: 3}
-    - {fileID: 6374446031963041683, guid: 2f5e62859100a43eaaeca02977c32a39, type: 3}
+    m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 2f5e62859100a43eaaeca02977c32a39, type: 3}
 --- !u!1 &388828672
 GameObject:
@@ -671,14 +656,6 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
-    - target: {fileID: 994350420228217420, guid: 14595156b0dc840aa81a612fd2214d99, type: 3}
-      propertyPath: m_LocalPosition.y
-      value: -0.13
-      objectReference: {fileID: 0}
-    - target: {fileID: 994350420228217422, guid: 14595156b0dc840aa81a612fd2214d99, type: 3}
-      propertyPath: m_Materials.Array.data[0]
-      value: 
-      objectReference: {fileID: 2100000, guid: cfeab2981dead448e87e09943aae2545, type: 2}
     - target: {fileID: 2141166064219846745, guid: 14595156b0dc840aa81a612fd2214d99, type: 3}
       propertyPath: m_Name
       value: LOD Group Cube
@@ -727,16 +704,5 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 3693176207771684284, guid: 14595156b0dc840aa81a612fd2214d99, type: 3}
-      propertyPath: m_Materials.Array.data[0]
-      value: 
-      objectReference: {fileID: 2100000, guid: f04cb5e54d833474391802a25a009fd5, type: 2}
-    - target: {fileID: 5101362896890923213, guid: 14595156b0dc840aa81a612fd2214d99, type: 3}
-      propertyPath: m_Materials.Array.data[0]
-      value: 
-      objectReference: {fileID: 2100000, guid: 7c3c7835a7ce8394a99d221aa1493961, type: 2}
-    m_RemovedComponents:
-    - {fileID: 994350420228217416, guid: 14595156b0dc840aa81a612fd2214d99, type: 3}
-    - {fileID: 7918401428354411016, guid: 14595156b0dc840aa81a612fd2214d99, type: 3}
-    - {fileID: 7817595681931959416, guid: 14595156b0dc840aa81a612fd2214d99, type: 3}
+    m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 14595156b0dc840aa81a612fd2214d99, type: 3}
