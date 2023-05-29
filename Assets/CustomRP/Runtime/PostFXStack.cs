@@ -53,7 +53,7 @@ public partial class PostFXStack
     public PostFXStack()
     {
         bloomPyramidId = Shader.PropertyToID("_BloomPyramid0");
-        for (int i = 0; i < maxBloomPyramidLevels * 2; i++)
+        for (int i = 1; i < maxBloomPyramidLevels * 2; i++)
         {
             Shader.PropertyToID("_BloomPyramid" + i);
         }
@@ -106,6 +106,7 @@ public partial class PostFXStack
 
         cmb.ReleaseTemporaryRT(bloomPrefilterId);
         cmb.SetGlobalFloat(bloomBucibicUpsamplingId, bloom.bicubicUpsampling ? 1f : 0f);
+        
         Pass combinePass, finalPass;
         float finalIntensity;
         if (bloom.mode == PostFXSettings.BloomSettings.Mode.Additive)
@@ -119,7 +120,7 @@ public partial class PostFXStack
             combinePass = Pass.BloomScatter;
             finalPass = Pass.BloomScatterFinal;
             cmb.SetGlobalFloat(bloomIntensityId, bloom.scatter);
-            finalIntensity = Mathf.Min(bloom.intensity, 0.95f);
+            finalIntensity = Mathf.Min(bloom.intensity, 1f);
         }
         if (i > 1)
         {
