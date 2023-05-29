@@ -96,12 +96,12 @@ Shader "Hidden/Custom/Post FX Stack"
         }
         
         Pass{
-            Name "Tone Mapping Reinhard"
+            Name "Tone Mapping ACES"
             
             HLSLPROGRAM
             #pragma target 3.5
             #pragma vertex DefaultPassVertex
-            #pragma fragment ToneMappingReinhardPassFragment
+            #pragma fragment ToneMappingACESPassFragment
             ENDHLSL
         }
         
@@ -116,12 +116,12 @@ Shader "Hidden/Custom/Post FX Stack"
         }
         
         Pass{
-            Name "Tone Mapping ACES"
+            Name "Tone Mapping Reinhard"
             
             HLSLPROGRAM
             #pragma target 3.5
             #pragma vertex DefaultPassVertex
-            #pragma fragment ToneMappingACESPassFragment
+            #pragma fragment ToneMappingReinhardPassFragment
             ENDHLSL
         }
         

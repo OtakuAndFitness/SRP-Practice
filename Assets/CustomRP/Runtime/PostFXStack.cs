@@ -21,9 +21,9 @@ public partial class PostFXStack
         BloomScatterFinal,
         BloomPrefilter,
         BloomPrefilterFireflies,
-        ToneMappingReinhard,
-        ToneMappingNeutral,
         ToneMappingACES,
+        ToneMappingNeutral,
+        ToneMappingReinhard,
         Copy
     }
 
