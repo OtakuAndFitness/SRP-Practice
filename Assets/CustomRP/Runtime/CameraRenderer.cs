@@ -30,7 +30,7 @@ public partial class CameraRenderer
 
     bool useHDR;
     
-    public void Render(ScriptableRenderContext context, Camera camera, bool allowHDR, bool useDynamicBatching, bool useGPUInstancing, bool useLightPerObject, ShadowSettings shadowSettings, PostFXSettings postFXSettings)
+    public void Render(ScriptableRenderContext context, Camera camera, bool allowHDR, bool useDynamicBatching, bool useGPUInstancing, bool useLightPerObject, ShadowSettings shadowSettings, PostFXSettings postFXSettings, int colorLUTResolution)
     {
         this.context = context;
         this.camera = camera;
@@ -49,7 +49,7 @@ public partial class CameraRenderer
         ExecuteBuffer();
         //设置光照信息，包含阴影信息，但阴影自己有个脚本来处理
         lighting.Setup(context,crs,shadowSettings, useLightPerObject);
-        postFXStack.Setup(context, camera,postFXSettings, useHDR);
+        postFXStack.Setup(context, camera,postFXSettings, useHDR, colorLUTResolution);
         cmb.EndSample(SampleName);
         
         Setup();

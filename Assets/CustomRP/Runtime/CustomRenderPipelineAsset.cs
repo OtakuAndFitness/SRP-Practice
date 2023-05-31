@@ -9,14 +9,25 @@ public class CustomRenderPipelineAsset : RenderPipelineAsset
 {
     [SerializeField] 
     bool useDynamicBatching = true, useGPUInstancing = true, useSRPBatcher = true, useLightsPerObject = true, allowHDR = true;
+
+    [SerializeField] 
+    ShadowSettings shadowSettings = default;
     
     [SerializeField]
     PostFXSettings postFXSettings = default;
     
-    [SerializeField] 
-    ShadowSettings shadowSettings = default;
+    public enum ColorLUTResolution
+    {
+        _16 = 16,
+        _32 = 32,
+        _64 = 64
+    }
+
+    [SerializeField]
+    ColorLUTResolution colorLutResolution = ColorLUTResolution._32;
+    
     protected override RenderPipeline CreatePipeline()
     {
-        return new CustomRenderPipeline(allowHDR,useDynamicBatching, useGPUInstancing, useSRPBatcher, useLightsPerObject, shadowSettings, postFXSettings);
+        return new CustomRenderPipeline(allowHDR,useDynamicBatching, useGPUInstancing, useSRPBatcher, useLightsPerObject, shadowSettings, postFXSettings, (int)colorLutResolution);
     }
 }
