@@ -253,13 +253,13 @@ public partial class PostFXStack
 
     }
 
-    void ConfigureShaodwsMidtonesHighlights()
+    void ConfigureShadowsMidtonesHighlights()
     {
         ShadowsMidtonesHighlightsSettings smh = postFXSettings.ShadowsMidtonesHighlights;
         cmb.SetGlobalColor(smhShadowsId, smh.shadows.linear);
         cmb.SetGlobalColor(smhMidtonesId, smh.midtones.linear);
         cmb.SetGlobalColor(smhHighlightsId, smh.highlights.linear);
-        cmb.SetGlobalVector(smhRangeId, new Vector4(smh.shadowsStart, smh.shadowsEnd, smh.hightlightsStart, smh.highlightsEnd));
+        cmb.SetGlobalVector(smhRangeId, new Vector4(smh.shadowsStart, smh.shadowsEnd, smh.highlightsStart, smh.highlightsEnd));
     }
 
     void DoColorGradingAndToneMapping(int sourceId)
@@ -268,7 +268,7 @@ public partial class PostFXStack
         ConfigureWhiteBalance();
         ConfigureSplitToning();
         ConfigureChannelMixer();
-        ConfigureShaodwsMidtonesHighlights();
+        ConfigureShadowsMidtonesHighlights();
 
         int lutHeight = colorLUTResolution;
         int lutWidth = lutHeight * lutHeight;

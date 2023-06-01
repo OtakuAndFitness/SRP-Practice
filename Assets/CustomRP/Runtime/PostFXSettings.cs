@@ -125,7 +125,7 @@ public class PostFXSettings : ScriptableObject
         public Color shadows, midtones, highlights;
 
         [Range(0f, 2f)] 
-        public float shadowsStart, shadowsEnd, hightlightsStart, highlightsEnd;
+        public float shadowsStart, shadowsEnd, highlightsStart, highlightsEnd;
     }
 
     [SerializeField] 
@@ -135,7 +135,7 @@ public class PostFXSettings : ScriptableObject
         midtones = Color.white,
         highlights = Color.white,
         shadowsEnd = 0.3f,
-        hightlightsStart = 0.55f,
+        highlightsStart = 0.55f,
         highlightsEnd = 1f
     };
     public ShadowsMidtonesHighlightsSettings ShadowsMidtonesHighlights => shadowsMidtonesHighlights;

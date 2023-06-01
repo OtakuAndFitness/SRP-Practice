@@ -19,14 +19,14 @@ public class Lighting
 
     static int
         dirLightColorId = Shader.PropertyToID("_DirectionalLightColors"),
-        dirLightDirectionsAndMaskId = Shader.PropertyToID("_DirectionalLightDirectionsAndMask"),
+        dirLightDirectionsAndMasksId = Shader.PropertyToID("_DirectionalLightDirectionsAndMasks"),
         dirLightCountId = Shader.PropertyToID("_DirectionalLightCount"),
         dirLightShadowDataId = Shader.PropertyToID("_DirectionalLightShadowData");
     
     static Vector4[]
         directionalColors = new Vector4[maxDirLightCount],
         dirLightShadowData = new Vector4[maxDirLightCount],
-        dirLightDirectionsAndMask = new Vector4[maxDirLightCount];
+        dirLightDirectionsAndMasks = new Vector4[maxDirLightCount];
     
     static int
         otherLightCountId = Shader.PropertyToID("_OtherLightCount"),
@@ -128,7 +128,7 @@ public class Lighting
         if (dirLightCount > 0)
         {
             cmb.SetGlobalVectorArray(dirLightColorId,directionalColors);
-            cmb.SetGlobalVectorArray(dirLightDirectionsAndMaskId,dirLightDirectionsAndMask);
+            cmb.SetGlobalVectorArray(dirLightDirectionsAndMasksId,dirLightDirectionsAndMasks);
             cmb.SetGlobalVectorArray(dirLightShadowDataId, dirLightShadowData);
         }
         
@@ -188,7 +188,7 @@ public class Lighting
         directionalColors[index] = vl.finalColor;//需要去CustomRenderPipeline那里设置线性颜色才是线性的
         Vector4 dirAndMask = -vl.localToWorldMatrix.GetColumn(2);
         dirAndMask.w = light.renderingLayerMask.ReinterpretAsFloat();
-        dirLightDirectionsAndMask[index] = dirAndMask;
+        dirLightDirectionsAndMasks[index] = dirAndMask;
         //储存阴影数据
         dirLightShadowData[index] = shadows.ReserveDirectionalShadows(light, visibleIndex);
     }
