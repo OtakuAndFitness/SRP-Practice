@@ -13,7 +13,7 @@ public class CustomLightEditor : LightEditor
     {
         base.OnInspectorGUI();
         // DrawRenderingLayerMask();
-        RenderingLayerMaskDrawer.Draw(settings.renderingLayerMask, renderLayerMaskLabel);
+        RenderingLayerMaskDrawer.Draw(settings.renderingLayerMask, renderingLayerMaskLabel);
         
         if (!settings.lightType.hasMultipleDifferentValues &&
             (LightType)settings.lightType.enumValueIndex == LightType.Spot)
@@ -30,7 +30,7 @@ public class CustomLightEditor : LightEditor
         }
     }
 
-    static GUIContent renderLayerMaskLabel =
+    static GUIContent renderingLayerMaskLabel =
         new GUIContent("Rendering Layer Mask", "Functional version of above property.");
 
     // void DrawRenderingLayerMask()

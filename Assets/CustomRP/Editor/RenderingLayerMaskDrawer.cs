@@ -31,7 +31,7 @@ public class RenderingLayerMaskDrawer : PropertyDrawer
             property.intValue = isUint && mask == -1 ? int.MaxValue : mask;
         }
 
-        EditorGUI.showMixedValue = true;
+        EditorGUI.showMixedValue = false;
     }
 
     public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
