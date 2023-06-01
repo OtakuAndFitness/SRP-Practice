@@ -1,15 +1,16 @@
 #ifndef CUSTOM_LIGHT_INCLUDED
 #define CUSTOM_LIGHT_INCLUDED
 
-#define MAX_DIRECTIONAL_LIGHTS 4
+#define MAX_DIRECTIONAL_LIGHT_COUNT 4
 #define MAX_OTHER_LIGHT_COUNT 64
 
 CBUFFER_START(_CustomLight)
     int _DirectionalLightCount;
-    float4 _DirectionalLightColors[MAX_DIRECTIONAL_LIGHTS];
-    float4 _DirectionalLightDirections[MAX_DIRECTIONAL_LIGHTS];
+    float4 _DirectionalLightColors[MAX_DIRECTIONAL_LIGHT_COUNT];
+    float4 _DirectionalLightDirections[MAX_DIRECTIONAL_LIGHT_COUNT];
     //阴影数据
-    float4 _DirectionalLightShadowData[MAX_DIRECTIONAL_LIGHTS];
+    float4 _DirectionalLightShadowData[MAX_DIRECTIONAL_LIGHT_COUNT];
+    float4 _DirectionalLightDirectionsAndMasks[MAX_DIRECTIONAL_LIGHT_COUNT];
 
     //非定向光源的属性
     int _OtherLightCount;
@@ -18,6 +19,7 @@ CBUFFER_START(_CustomLight)
     float4 _OtherLightDirections[MAX_OTHER_LIGHT_COUNT];
     float4 _OtherLightSpotAngles[MAX_OTHER_LIGHT_COUNT];
     float4 _OtherLightShadowData[MAX_OTHER_LIGHT_COUNT];
+    float4 _OtherLightDirectionsAndMasks[MAX_OTHER_LIGHT_COUNT];
 CBUFFER_END
 
 struct Light
@@ -25,6 +27,7 @@ struct Light
     float3 color;
     float3 direction;
     float attenuation;
+    uint renderingLayerMask;
 };
 
 //获取其他类型光源的阴影数据
@@ -75,7 +78,8 @@ Light GetOtherLight(int index, Surface surfaceWS, ShadowData shadowData)
     //套用公式计算随光照范围衰减
     float rangeAttenuation = Square(saturate(1.0 - Square(distanceSqr * _OtherLightPositions[index].w)));
     float4 spotAngles = _OtherLightSpotAngles[index];
-    float3 spotDirection = _OtherLightDirections[index].xyz;
+    float3 spotDirection = _OtherLightDirectionsAndMasks[index].xyz;
+    light.renderingLayerMask = asuint(_OtherLightDirectionsAndMasks[index].w);
     //得到聚光灯衰减
     float spotAttenuation = Square(saturate(dot(spotDirection, light.direction) * spotAngles.x + spotAngles.y));
     OtherShadowData otherShadowData = GetOtherShadowData(index);
@@ -93,7 +97,8 @@ Light GetDirectionalLight(int index, Surface surfaceWS, ShadowData shadowData)
     //得到阴影数据
     DirectionalShadowData dirShadowData = GetDirectionalShadowData(index, shadowData);
     light.color = _DirectionalLightColors[index].rgb;
-    light.direction = _DirectionalLightDirections[index].xyz;
+    light.direction = _DirectionalLightDirectionsAndMasks[index].xyz;
+    light.renderingLayerMask = asuint(_DirectionalLightDirectionsAndMasks[index].w);
     //得到阴影衰减
     light.attenuation = GetDirectionalShadowAttenuation(dirShadowData, shadowData, surfaceWS);
     return light;

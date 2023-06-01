@@ -97,6 +97,7 @@ float4 LitPassFragment(Varyings input) : SV_TARGET
     sf.fresnelStrength = GetFresnel();
     //计算抖动值
     sf.dither = InterleavedGradientNoise(input.positionCS.xy,0);
+    sf.renderingLayerMask = asuint(unity_RenderingLayer.x);
 #if defined(_PREMULTIPY_ALPHA)
     BRDF brdf = GetBRDF(sf,true);
 #else

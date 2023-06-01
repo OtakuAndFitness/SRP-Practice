@@ -7,6 +7,7 @@ CBUFFER_START(UnityPerDraw)
     //LOD
     float4 unity_LODFade;
     real4 unity_WorldTransformParams;
+    float4 unity_RenderingLayer;
     float4x4 unity_MatrixPreviousM;
     float4x4 unity_MatrixPreviousMI;
     //Lightmap

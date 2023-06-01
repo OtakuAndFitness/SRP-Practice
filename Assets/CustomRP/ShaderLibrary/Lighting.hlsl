@@ -1,6 +1,11 @@
 #ifndef CUSTOM_LIGHTING_INCLUDED
 #define CUSTOM_LIGHTING_INCLUDED
 
+bool RenderingLayersOverlap(Surface sf, Light light)
+{
+    return (sf.renderingLayerMask & light.renderingLayerMask) != 0;
+}
+
 //计算入射光照
 float3 IncomingLight(Surface sf, Light light)
 {
@@ -25,25 +30,32 @@ float3 GetLighting(Surface surfaceWS, BRDF brdf, GI gi)
     for (int i=0;i< GetDirLightCount();i++)
     {
         Light light = GetDirectionalLight(i, surfaceWS, shadowData);
-        color += GetLighting(surfaceWS, brdf, light);
+        if (RenderingLayersOverlap(surfaceWS, light))
+        {
+            color += GetLighting(surfaceWS, brdf, light);
+        }
     }
 #if defined(_LIGHTS_PER_OBJECT)
     for (int j = 0; j < min(unity_LightData.y, 8); j++)
     {
         int lightIndex = unity_LightIndices[(uint)j / 4][(uint)j % 4];
         Light light = GetOtherLight(lightIndex, surfaceWS, shadowData);
-        color += GetLighting(surfaceWS, brdf, light);
+        if (RenderingLayersOverlap(surfaceWS, light))
+        {
+            color += GetLighting(surfaceWS, brdf, light);
+        }
     }
 #else
     for (int j=0;j<GetOtherLightCount();j++)
     {
         Light light = GetOtherLight(j, surfaceWS, shadowData);
-        color += GetLighting(surfaceWS, brdf, light);
+        if (RenderingLayersOverlap(surfaceWS, light))
+        {
+            color += GetLighting(surfaceWS, brdf, light);
+        }
     }
 #endif
     return color;
 }
-
-
 
 #endif

@@ -39,6 +39,11 @@ public partial class CameraRenderer
 
         CustomRenderPipelineCamera crpCamera = camera.GetComponent<CustomRenderPipelineCamera>();
         CameraSettings cameraSettings = crpCamera ? crpCamera.CameraSettings : defaultCameraSettings;
+
+        if (cameraSettings.overridePostFX)
+        {
+            postFXSettings = cameraSettings.postFXSettings;
+        }
         
         PrepareBuffer();
         
@@ -53,13 +58,13 @@ public partial class CameraRenderer
         cmb.BeginSample(SampleName);
         ExecuteBuffer();
         //设置光照信息，包含阴影信息，但阴影自己有个脚本来处理
-        lighting.Setup(context,crs,shadowSettings, useLightPerObject);
+        lighting.Setup(context,crs,shadowSettings, useLightPerObject, cameraSettings.maskLights ? cameraSettings.renderingLayerMask : -1);
         postFXStack.Setup(context, camera,postFXSettings, useHDR, colorLUTResolution, cameraSettings.finalBlendMode);
         cmb.EndSample(SampleName);
         
         Setup();
         
-        DrawVisibleGeometry(useDynamicBatching, useGPUInstancing, useLightPerObject);
+        DrawVisibleGeometry(useDynamicBatching, useGPUInstancing, useLightPerObject, cameraSettings.renderingLayerMask);
         
         //暴露srp不支持的shader
         DrawUnsupportShaders();
@@ -117,7 +122,7 @@ public partial class CameraRenderer
         context.ExecuteCommandBuffer(cmb);
         cmb.Clear();
     }
-    void DrawVisibleGeometry(bool useDynamicBatching, bool useGPUInstancing, bool useLightsPerObject)
+    void DrawVisibleGeometry(bool useDynamicBatching, bool useGPUInstancing, bool useLightsPerObject, int renderingLayerMask)
     {
         PerObjectData lightsPerObjectFlags = useLightsPerObject ? PerObjectData.LightData | PerObjectData.LightIndices : PerObjectData.None;
         
@@ -136,7 +141,7 @@ public partial class CameraRenderer
         //渲染CustomLit表示的pass块
         dss.SetShaderPassName(1,litId);
         //哪些类型的渲染队列会被渲染
-        FilteringSettings fss = new FilteringSettings(RenderQueueRange.opaque);
+        FilteringSettings fss = new FilteringSettings(RenderQueueRange.opaque, renderingLayerMask: (uint)renderingLayerMask);
         //先渲染不透明物体
         context.DrawRenderers(crs,ref dss,ref fss);
         
