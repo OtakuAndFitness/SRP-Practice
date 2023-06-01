@@ -19,23 +19,23 @@ public class Lighting
 
     static int
         dirLightColorId = Shader.PropertyToID("_DirectionalLightColors"),
-        dirLightDirectionsAndMaskId = Shader.PropertyToID("_DirLightDirectionsAndMask"),
+        dirLightDirectionsAndMaskId = Shader.PropertyToID("_DirectionalLightDirectionsAndMask"),
         dirLightCountId = Shader.PropertyToID("_DirectionalLightCount"),
         dirLightShadowDataId = Shader.PropertyToID("_DirectionalLightShadowData");
     
-    static int
-        otherLightCountId = Shader.PropertyToID("_OtherLightCount"),
-        otherLightColorsId = Shader.PropertyToID("_OtherLightColors"),
-        otherLightPositionsId = Shader.PropertyToID("_OtherLightPositions"),
-        otherLightDirectionsAndMasksId = Shader.PropertyToID("_OtherLightDirectionsAndMask"),
-        otherLightSpotAnglesId = Shader.PropertyToID("_OtherLightSpotAngles"),
-        otherLightShadowDataId = Shader.PropertyToID("_OtherLightShadowData");
-
     static Vector4[]
         directionalColors = new Vector4[maxDirLightCount],
         dirLightShadowData = new Vector4[maxDirLightCount],
         dirLightDirectionsAndMask = new Vector4[maxDirLightCount];
     
+    static int
+        otherLightCountId = Shader.PropertyToID("_OtherLightCount"),
+        otherLightColorsId = Shader.PropertyToID("_OtherLightColors"),
+        otherLightPositionsId = Shader.PropertyToID("_OtherLightPositions"),
+        otherLightDirectionsAndMasksId = Shader.PropertyToID("_OtherLightDirectionsAndMasks"),
+        otherLightSpotAnglesId = Shader.PropertyToID("_OtherLightSpotAngles"),
+        otherLightShadowDataId = Shader.PropertyToID("_OtherLightShadowData");
+
     static Vector4[]
         otherLightColors = new Vector4[maxOtherLightCount],
         otherLightPositions = new Vector4[maxOtherLightCount],
