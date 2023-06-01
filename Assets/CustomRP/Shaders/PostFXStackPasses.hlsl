@@ -113,6 +113,17 @@ float4 BloomAddPassFragment(Varyings input) : SV_TARGET
     return float4(lowRes * _BloomIntensity + highRes.rgb, highRes.a);
 }
 
+float3 ApplyBloomThreshold(float3 color)
+{
+    float brightness = Max3(color.r,color.g,color.b);
+    float soft = brightness + _BloomThreshold.y;
+    soft = clamp(soft, 0.0, _BloomThreshold.z);
+    soft = soft * soft * _BloomThreshold.w;
+    float contribution = max(soft, brightness - _BloomThreshold.x);
+    contribution /= max(brightness, 0.00001);
+    return color * contribution;
+}
+
 float4 BloomScatterPassFragment(Varyings input) : SV_TARGET
 {
     float3 lowRes;
@@ -125,17 +136,6 @@ float4 BloomScatterPassFragment(Varyings input) : SV_TARGET
     }
     float3 highRes = GetSource2(input.screenUV).rgb;
     return float4(lerp(highRes, lowRes, _BloomIntensity),1.0);
-}
-
-float3 ApplyBloomThreshold(float3 color)
-{
-    float brightness = Max3(color.r,color.g,color.b);
-    float soft = brightness + _BloomThreshold.y;
-    soft = clamp(soft, 0.0, _BloomThreshold.z);
-    soft = soft * soft * _BloomThreshold.w;
-    float contribution = max(soft, brightness - _BloomThreshold.x);
-    contribution /= max(brightness, 0.00001);
-    return color * contribution;
 }
 
 float4 BloomScatterFinalPassFragment(Varyings input) : SV_TARGET
