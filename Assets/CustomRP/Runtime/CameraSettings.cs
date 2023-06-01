@@ -19,11 +19,12 @@ public class CameraSettings
         destination = BlendMode.Zero
     };
 
+    [RenderingLayerMaskField]
+    public int renderingLayerMask = -1;
+    
     public bool overridePostFX = false;
 
     public PostFXSettings postFXSettings = default;
-
-    public int renderingLayerMask = -1;
 
     public bool maskLights = false;
 }

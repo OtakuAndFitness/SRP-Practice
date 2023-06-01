@@ -13,8 +13,6 @@ public class RenderingLayerMaskDrawer : PropertyDrawer
         Draw(EditorGUILayout.GetControlRect(), property,label);
     }
     
-    
-
     public static void Draw(Rect position, SerializedProperty property, GUIContent label)
     {
         EditorGUI.showMixedValue = property.hasMultipleDifferentValues;
