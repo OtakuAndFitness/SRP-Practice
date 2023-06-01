@@ -19,24 +19,26 @@ public class Lighting
 
     static int
         dirLightColorId = Shader.PropertyToID("_DirectionalLightColors"),
-        dirLightDirectionsId = Shader.PropertyToID("_DirectionalLightDirections"),
+        dirLightDirectionsAndMaskId = Shader.PropertyToID("_DirLightDirectionsAndMask"),
         dirLightCountId = Shader.PropertyToID("_DirectionalLightCount"),
-        dirLightShadowDataId = Shader.PropertyToID("_DirectionalLightShadowData"),
+        dirLightShadowDataId = Shader.PropertyToID("_DirectionalLightShadowData");
+    
+    static int
         otherLightCountId = Shader.PropertyToID("_OtherLightCount"),
         otherLightColorsId = Shader.PropertyToID("_OtherLightColors"),
         otherLightPositionsId = Shader.PropertyToID("_OtherLightPositions"),
-        otherLightDirectionsId = Shader.PropertyToID("_OtherLightDirections"),
+        otherLightDirectionsAndMasksId = Shader.PropertyToID("_OtherLightDirectionsAndMask"),
         otherLightSpotAnglesId = Shader.PropertyToID("_OtherLightSpotAngles"),
         otherLightShadowDataId = Shader.PropertyToID("_OtherLightShadowData");
 
     static Vector4[]
         directionalColors = new Vector4[maxDirLightCount],
-        directionalDirs = new Vector4[maxDirLightCount],
         dirLightShadowData = new Vector4[maxDirLightCount],
-        dirLightDirectionsAndMask = new Vector4[maxDirLightCount],
+        dirLightDirectionsAndMask = new Vector4[maxDirLightCount];
+    
+    static Vector4[]
         otherLightColors = new Vector4[maxOtherLightCount],
         otherLightPositions = new Vector4[maxOtherLightCount],
-        otherLightDirections = new Vector4[maxOtherLightCount],
         otherLightSpotAngles = new Vector4[maxOtherLightCount],
         otherLightShadowData = new Vector4[maxOtherLightCount],
         otherLightDirectionsAndMasks = new Vector4[maxOtherLightCount];
@@ -126,7 +128,7 @@ public class Lighting
         if (dirLightCount > 0)
         {
             cmb.SetGlobalVectorArray(dirLightColorId,directionalColors);
-            cmb.SetGlobalVectorArray(dirLightDirectionsId,directionalDirs);
+            cmb.SetGlobalVectorArray(dirLightDirectionsAndMaskId,dirLightDirectionsAndMask);
             cmb.SetGlobalVectorArray(dirLightShadowDataId, dirLightShadowData);
         }
         
@@ -135,7 +137,7 @@ public class Lighting
         {
             cmb.SetGlobalVectorArray(otherLightColorsId, otherLightColors);
             cmb.SetGlobalVectorArray(otherLightPositionsId, otherLightPositions);
-            cmb.SetGlobalVectorArray(otherLightDirectionsId, otherLightDirections);
+            cmb.SetGlobalVectorArray(otherLightDirectionsAndMasksId, otherLightDirectionsAndMasks);
             cmb.SetGlobalVectorArray(otherLightSpotAnglesId, otherLightSpotAngles);
             cmb.SetGlobalVectorArray(otherLightShadowDataId, otherLightShadowData);
         }
