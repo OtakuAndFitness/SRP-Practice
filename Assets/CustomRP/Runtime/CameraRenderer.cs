@@ -30,10 +30,15 @@ public partial class CameraRenderer
 
     bool useHDR;
     
+    static CameraSettings defaultCameraSettings = new CameraSettings();
+
     public void Render(ScriptableRenderContext context, Camera camera, bool allowHDR, bool useDynamicBatching, bool useGPUInstancing, bool useLightPerObject, ShadowSettings shadowSettings, PostFXSettings postFXSettings, int colorLUTResolution)
     {
         this.context = context;
         this.camera = camera;
+
+        CustomRenderPipelineCamera crpCamera = camera.GetComponent<CustomRenderPipelineCamera>();
+        CameraSettings cameraSettings = crpCamera ? crpCamera.CameraSettings : defaultCameraSettings;
         
         PrepareBuffer();
         
@@ -49,7 +54,7 @@ public partial class CameraRenderer
         ExecuteBuffer();
         //设置光照信息，包含阴影信息，但阴影自己有个脚本来处理
         lighting.Setup(context,crs,shadowSettings, useLightPerObject);
-        postFXStack.Setup(context, camera,postFXSettings, useHDR, colorLUTResolution);
+        postFXStack.Setup(context, camera,postFXSettings, useHDR, colorLUTResolution, cameraSettings.finalBlendMode);
         cmb.EndSample(SampleName);
         
         Setup();

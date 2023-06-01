@@ -32,7 +32,7 @@ public partial class PostFXStack
 
     const int maxBloomPyramidLevels = 16;
 
-    private int
+    int
         fxSoundId = Shader.PropertyToID("_PostFXSource"),
         fxSource2Id = Shader.PropertyToID("_PostFXSource2"),
         bloomBucibicUpsamplingId = Shader.PropertyToID("_BloomBicubicUpsampling"),
@@ -41,7 +41,7 @@ public partial class PostFXStack
         bloomIntensityId = Shader.PropertyToID("_BloomIntensity"),
         bloomResultId = Shader.PropertyToID("_BloomResult");
 
-    private int
+    int
         colorAdjustmentsId = Shader.PropertyToID("_ColorAdjustments"),
         colorFilterId = Shader.PropertyToID("_ColorFilter"),
         whiteBalanceId = Shader.PropertyToID("_WhiteBalance"),
@@ -57,6 +57,10 @@ public partial class PostFXStack
         colorGradingLUTId = Shader.PropertyToID("_ColorGradingLUT"),
         colorGradingLUTParametersId = Shader.PropertyToID("_ColorGradingLUTParameters"),
         colorGradingLUTInLogId = Shader.PropertyToID("_ColorGradingLUTInLog");
+
+    int
+        finalSrcBlendId = Shader.PropertyToID("_FinalSrcBlend"),
+        finalDstBlendId = Shader.PropertyToID("_FinalDstBlend");
             
     int bloomPyramidId, colorLUTResolution;
     
@@ -67,6 +71,8 @@ public partial class PostFXStack
     PostFXSettings postFXSettings;
 
     bool useHDR;
+
+    CameraSettings.FinalBlendMode finalBlendMode;
 
     public bool isActive => postFXSettings != null;
 
@@ -171,13 +177,14 @@ public partial class PostFXStack
         return true;
     }
 
-    public void Setup(ScriptableRenderContext context, Camera camera, PostFXSettings postFXSettings, bool useHDR, int colorLUTResolution)
+    public void Setup(ScriptableRenderContext context, Camera camera, PostFXSettings postFXSettings, bool useHDR, int colorLUTResolution, CameraSettings.FinalBlendMode finalBlendMode)
     {
         this.context = context;
         this.camera = camera;
         this.postFXSettings = camera.cameraType <= CameraType.SceneView ? postFXSettings : null;
         this.useHDR = useHDR;
         this.colorLUTResolution = colorLUTResolution;
+        this.finalBlendMode = finalBlendMode;
         ApplySceneViewState();
     }
 
@@ -203,6 +210,16 @@ public partial class PostFXStack
         cmb.SetGlobalTexture(fxSoundId, from);
         cmb.SetRenderTarget(to, RenderBufferLoadAction.DontCare, RenderBufferStoreAction.Store);
         cmb.DrawProcedural(Matrix4x4.identity, postFXSettings.Material, (int)pass, MeshTopology.Triangles,3);
+    }
+    
+    void DrawFinal(RenderTargetIdentifier from)
+    {
+        cmb.SetGlobalFloat(finalSrcBlendId, (float)finalBlendMode.source);
+        cmb.SetGlobalFloat(finalDstBlendId, (float)finalBlendMode.destination);
+        cmb.SetGlobalTexture(fxSoundId, from);
+        cmb.SetRenderTarget(BuiltinRenderTextureType.CameraTarget, finalBlendMode.destination == BlendMode.Zero ? RenderBufferLoadAction.DontCare : RenderBufferLoadAction.Load, RenderBufferStoreAction.Store);
+        cmb.SetViewport(camera.pixelRect);
+        cmb.DrawProcedural(Matrix4x4.identity, postFXSettings.Material, (int)Pass.Final, MeshTopology.Triangles,3);
     }
 
     void ConfigureColorAdjustments()
@@ -264,7 +281,7 @@ public partial class PostFXStack
         Draw(sourceId, colorGradingLUTId, pass);
         
         cmb.SetGlobalVector(colorGradingLUTParametersId, new Vector4(1f / lutWidth, 1f / lutHeight, lutHeight - 1f));
-        Draw(sourceId, BuiltinRenderTextureType.CameraTarget, Pass.Final);
+        DrawFinal(sourceId);
         cmb.ReleaseTemporaryRT(colorGradingLUTId);
     }
 }

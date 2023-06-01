@@ -148,6 +148,8 @@ Shader "Hidden/Custom/Post FX Stack"
         Pass{
             Name "Final"
             
+            Blend [_FinalSrcBlend] [_FinalDstBlend]
+            
             HLSLPROGRAM
             #pragma target 3.5
             #pragma vertex DefaultPassVertex

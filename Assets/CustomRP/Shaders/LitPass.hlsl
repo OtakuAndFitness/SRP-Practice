@@ -105,7 +105,7 @@ float4 LitPassFragment(Varyings input) : SV_TARGET
     GI gi = GetGI(GI_FRAGMENT_DATA(input), sf, brdf);
     float3 color = GetLighting(sf,brdf, gi);
     color += GetEmission(config);
-    return float4(color,sf.alpha);
+    return float4(color,GetFinalAlpha(sf.alpha));
 }
 
 #endif

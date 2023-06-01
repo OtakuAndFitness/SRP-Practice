@@ -40,7 +40,7 @@ float4 UnlitPassFragment(Varyings input) : SV_TARGET
     #endif
 
     
-    return baseCol;
+    return float4(baseCol.rgb, GetFinalAlpha(baseCol.a));
 }
 
 #endif

@@ -48,7 +48,7 @@ Shader "Custom/Lit"
         {
             Tags{"LightMode"="CustomLight"}
             //定义混合模式
-            Blend [_SrcBlend][_DstBlend]
+            Blend [_SrcBlend][_DstBlend], One OneMinusSrcAlpha
             //是否写入深度
             ZWrite [_ZWrite]
             HLSLPROGRAM
