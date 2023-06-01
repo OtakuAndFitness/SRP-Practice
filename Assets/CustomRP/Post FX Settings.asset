@@ -46,7 +46,7 @@ MonoBehaviour:
     highlights: {r: 1, g: 0.89411765, b: 0.83137256, a: 1}
     shadowsStart: 0
     shadowsEnd: 0.3
-    hightlightsStart: 0.55
+    highlightsStart: 0.55
     highlightsEnd: 1
   toneMapping:
     mode: 1
