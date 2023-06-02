@@ -19,7 +19,7 @@ public class PostFXSettings : ScriptableObject
         [Range(0f,16f)]
         public int maxIterations;
         [Min(1f)]
-        public int downscaleLimits;
+        public int downscaleLimit;
 
         public bool bicubicUpsampling;
         [Min(0f)]
