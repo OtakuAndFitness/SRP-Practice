@@ -8,6 +8,8 @@ using LightType = UnityEngine.LightType;
 public partial class CustomRenderPipeline
 {
     partial void InitializeForEditor();
+
+    partial void DisposeForEditor();
     
 #if UNITY_EDITOR
     partial void InitializeForEditor()
@@ -15,13 +17,7 @@ public partial class CustomRenderPipeline
         Lightmapping.SetDelegate(lightDelegate);
     }
 
-    //清理和重置委托
-    protected override void Dispose(bool disposing)
-    {
-        base.Dispose(disposing);
-        Lightmapping.ResetDelegate();
-    }
-    
+
     static Lightmapping.RequestLightsDelegate lightDelegate =
         (Light[] lights, NativeArray<LightDataGI> output) =>
         {
@@ -60,5 +56,19 @@ public partial class CustomRenderPipeline
                 output[i] = lightData;
             }
         };
+    
+    //清理和重置委托
+    partial void DisposeForEditor()
+    {
+        Lightmapping.ResetDelegate();   
+    }
+
+    protected override void Dispose(bool disposing)
+    {
+        base.Dispose(disposing);
+        DisposeForEditor();
+        renderer.Dispose();
+    }
+
 #endif
 }

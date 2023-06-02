@@ -5,15 +5,16 @@ using UnityEngine.Rendering;
 
 public partial class CustomRenderPipeline : RenderPipeline
 {
-    CameraRenderer renderer = new CameraRenderer();
-    bool useDynamicBatching, useGPUInstancing, useLightsPerObject, allowHDR;
+    CameraRenderer renderer;
+    bool useDynamicBatching, useGPUInstancing, useLightsPerObject;
     ShadowSettings shadowSettings;
     PostFXSettings postFXSettings;
     int colorLUTResolution;
+    CustomRenderPipelineAsset.CameraBufferSettings cameraBufferSettings;
     
-    public CustomRenderPipeline(bool allowHDR, bool useDynamicBatching, bool useGPUInstancing, bool useSRPBatcher, bool useLightsPerObject, ShadowSettings shadowSettings, PostFXSettings postFXSettings, int colorLutResolution)
+    public CustomRenderPipeline(CustomRenderPipelineAsset.CameraBufferSettings cameraBufferSettings, bool useDynamicBatching, bool useGPUInstancing, bool useSRPBatcher, bool useLightsPerObject, ShadowSettings shadowSettings, PostFXSettings postFXSettings, int colorLUTResolution, Shader cameraRendererShader)
     {
-        this.allowHDR = allowHDR;
+        this.cameraBufferSettings = cameraBufferSettings;
         this.useDynamicBatching = useDynamicBatching;
         this.useGPUInstancing = useGPUInstancing;
         this.useLightsPerObject = useLightsPerObject;
@@ -21,7 +22,8 @@ public partial class CustomRenderPipeline : RenderPipeline
         GraphicsSettings.lightsUseLinearIntensity = true;
         this.shadowSettings = shadowSettings;
         this.postFXSettings = postFXSettings;
-        this.colorLUTResolution = colorLutResolution;
+        this.colorLUTResolution = colorLUTResolution;
+        renderer = new CameraRenderer(cameraRendererShader);
         //为了烘焙光衰减的正确，但在unity2021.3中有没有这个方法烘焙光看起来都一样
         InitializeForEditor();
     }
@@ -30,7 +32,7 @@ public partial class CustomRenderPipeline : RenderPipeline
     {
         foreach (var cam in cameras)
         {
-            renderer.Render(context,cam,allowHDR,useDynamicBatching,useGPUInstancing, useLightsPerObject, shadowSettings, postFXSettings, colorLUTResolution);
+            renderer.Render(context,cam,cameraBufferSettings,useDynamicBatching,useGPUInstancing, useLightsPerObject, shadowSettings, postFXSettings, colorLUTResolution);
         }
     }
 }

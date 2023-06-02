@@ -34,6 +34,8 @@ CBUFFER_START(UnityPerDraw)
     real4 unity_LightIndices[2];
     float4 unity_OrthoParams;
     float4 _ProjectionParams;
+    float4 _ScreenParams;
+    float4 _ZBufferParams;
 CBUFFER_END
 
 float4x4 unity_MatrixV;

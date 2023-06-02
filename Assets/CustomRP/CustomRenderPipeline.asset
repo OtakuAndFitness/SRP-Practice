@@ -33,4 +33,5 @@ MonoBehaviour:
       atlasSize: 1024
       filter: 2
   postFXSettings: {fileID: 11400000, guid: fbb03f604d2911a46874498c7dd420c2, type: 2}
+  cameraRendererShader: {fileID: 4800000, guid: aa6fb3461ba528f4d92d15cadae5ecea, type: 3}
   colorLutResolution: 32

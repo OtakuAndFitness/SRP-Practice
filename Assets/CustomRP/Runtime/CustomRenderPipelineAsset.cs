@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -8,13 +9,29 @@ using UnityEngine.Rendering;
 public partial class CustomRenderPipelineAsset : RenderPipelineAsset
 {
     [SerializeField] 
-    bool useDynamicBatching = true, useGPUInstancing = true, useSRPBatcher = true, useLightsPerObject = true, allowHDR = true;
+    bool useDynamicBatching = true, useGPUInstancing = true, useSRPBatcher = true, useLightsPerObject = true;
 
     [SerializeField] 
     ShadowSettings shadowSettings = default;
     
     [SerializeField]
     PostFXSettings postFXSettings = default;
+
+    [SerializeField]
+    Shader cameraRendererShader = default;
+    
+    [Serializable]
+    public struct CameraBufferSettings
+    {
+        public bool allowHDR;
+        public bool copyDepth, copyDepthReflections;
+    }
+
+    [SerializeField] 
+    CameraBufferSettings cameraBuffer = new CameraBufferSettings()
+    {
+        allowHDR = true
+    };
     
     public enum ColorLUTResolution
     {
@@ -28,6 +45,6 @@ public partial class CustomRenderPipelineAsset : RenderPipelineAsset
     
     protected override RenderPipeline CreatePipeline()
     {
-        return new CustomRenderPipeline(allowHDR,useDynamicBatching, useGPUInstancing, useSRPBatcher, useLightsPerObject, shadowSettings, postFXSettings, (int)colorLutResolution);
+        return new CustomRenderPipeline(cameraBuffer,useDynamicBatching, useGPUInstancing, useSRPBatcher, useLightsPerObject, shadowSettings, postFXSettings, (int)colorLutResolution, cameraRendererShader);
     }
 }
