@@ -10,7 +10,7 @@ struct Attributes
 
 struct Varyings
 {
-    float4 positionCS : SV_POSITION;
+    float4 positionCS_SS : SV_POSITION;
     float2 uv : VAR_BASE_UV;
     UNITY_VERTEX_INPUT_INSTANCE_ID
 };
@@ -23,11 +23,11 @@ Varyings ShadowCasterPassVertex(Attributes input)
     UNITY_SETUP_INSTANCE_ID(input);
     UNITY_TRANSFER_INSTANCE_ID(input,output);
     float3 positionWS = TransformObjectToWorld(input.positionOS);
-    output.positionCS = TransformWorldToHClip(positionWS);
+    output.positionCS_SS = TransformWorldToHClip(positionWS);
     if (_ShadowPancaking)
     {
     #if UNITY_REVERSED_Z
-        output.positionCS.z = min(output.positionCS.z, output.positionCS.w * UNITY_NEAR_CLIP_VALUE);
+        output.positionCS_SS.z = min(output.positionCS_SS.z, output.positionCS_SS.w * UNITY_NEAR_CLIP_VALUE);
     #else
         output.positionCS.z = max(output.positionCS.z, output.positionCS.w * UNITY_NEAR_CLIP_VALUE);
     #endif
@@ -39,15 +39,15 @@ Varyings ShadowCasterPassVertex(Attributes input)
 void ShadowCasterPassFragment(Varyings input)
 {
     UNITY_SETUP_INSTANCE_ID(input);
-    ClipLOD(input.positionCS, unity_LODFade.x);
+    InputConfig config = GetInputConfig(input.positionCS_SS, input.uv);
+    ClipLOD(config.fragment, unity_LODFade.x);
 
-    InputConfig config = GetInputConfig(input.uv);
     float4 baseCol = GetBase(config);
     
 #if defined(_SHADOWS_CLIP)
     clip(baseCol.a - GetCutOff());
 #elif defined(_SHADOWS_DITHER)
-    float dither = InterleavedGradientNoise(input.positionCS.xy,0);
+    float dither = InterleavedGradientNoise(input.positionCS_SS.xy,0);
     clip(baseCol.a - dither);
 #endif
     

@@ -32,7 +32,7 @@ CBUFFER_START(UnityPerDraw)
     float4 unity_SpecCube0_HDR;
     real4 unity_LightData;
     real4 unity_LightIndices[2];
-
+    float4 unity_OrthoParams;
     float4 _ProjectionParams;
 CBUFFER_END
 

@@ -24,7 +24,7 @@ struct Attributes
 
 struct Varyings
 {
-    float4 positionCS : SV_POSITION;
+    float4 positionCS_SS : SV_POSITION;
     float3 positionWS : VAR_POSITION;
     float2 uv : VAR_BASE_UV;
 #if defined(_DETAIL_MAP)
@@ -45,7 +45,7 @@ Varyings LitPassVertex(Attributes input)
     UNITY_TRANSFER_INSTANCE_ID(input,output);
     TRANSFER_GI_DATA(input,output);
     output.positionWS = TransformObjectToWorld(input.positionOS);
-    output.positionCS = TransformWorldToHClip(output.positionWS);
+    output.positionCS_SS = TransformWorldToHClip(output.positionWS);
     output.uv = TransformBaseUV(input.uv);
 #if defined(_DETAIL_MAP)
     output.detailUV = TransformDetailUV(input.uv);
@@ -60,8 +60,9 @@ Varyings LitPassVertex(Attributes input)
 float4 LitPassFragment(Varyings input) : SV_TARGET
 {
     UNITY_SETUP_INSTANCE_ID(input);
-    ClipLOD(input.positionCS, unity_LODFade.x);
-    InputConfig config = GetInputConfig(input.uv);
+    InputConfig config = GetInputConfig(input.positionCS_SS, input.uv);
+    ClipLOD(config.fragment, unity_LODFade.x);
+
 #if defined(_MASK_MAP)
     config.useMask = true;
 #endif
@@ -96,7 +97,7 @@ float4 LitPassFragment(Varyings input) : SV_TARGET
     sf.occlusion = GetOcclusion(config);
     sf.fresnelStrength = GetFresnel();
     //计算抖动值
-    sf.dither = InterleavedGradientNoise(input.positionCS.xy,0);
+    sf.dither = InterleavedGradientNoise(input.positionCS_SS.xy,0);
     sf.renderingLayerMask = asuint(unity_RenderingLayer.x);
 #if defined(_PREMULTIPY_ALPHA)
     BRDF brdf = GetBRDF(sf,true);
