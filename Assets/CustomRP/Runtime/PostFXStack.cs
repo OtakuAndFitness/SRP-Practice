@@ -56,7 +56,7 @@ public partial class PostFXStack
         smhRangeId = Shader.PropertyToID("_SMHRange"),
         colorGradingLUTId = Shader.PropertyToID("_ColorGradingLUT"),
         colorGradingLUTParametersId = Shader.PropertyToID("_ColorGradingLUTParameters"),
-        colorGradingLUTInLogId = Shader.PropertyToID("_ColorGradingLUTInLog");
+        colorGradingLUTInLogCId = Shader.PropertyToID("_ColorGradingLUTInLogC");
 
     int
         finalSrcBlendId = Shader.PropertyToID("_FinalSrcBlend"),
@@ -277,7 +277,7 @@ public partial class PostFXStack
         
         ToneMappingSettings.Mode mode = postFXSettings.ToneMapping.mode;
         Pass pass = Pass.ColorGradingNone + (int)mode;
-        cmb.SetGlobalFloat(colorGradingLUTInLogId, useHDR && pass != Pass.ColorGradingNone ? 1f : 0f);
+        cmb.SetGlobalFloat(colorGradingLUTInLogCId, useHDR && pass != Pass.ColorGradingNone ? 1f : 0f);
         Draw(sourceId, colorGradingLUTId, pass);
         
         cmb.SetGlobalVector(colorGradingLUTParametersId, new Vector4(1f / lutWidth, 1f / lutHeight, lutHeight - 1f));
