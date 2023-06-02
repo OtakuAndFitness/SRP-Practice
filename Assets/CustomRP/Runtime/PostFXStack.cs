@@ -88,9 +88,9 @@ public partial class PostFXStack
     bool DoBloom(int sourceId)
     {
         // cmb.BeginSample("Bloom");
-        BloomSettings bloom = postFXSettings.Bloom;
+        PostFXSettings.BloomSettings bloom = postFXSettings.Bloom;
         int width = camera.pixelWidth / 2, height = camera.pixelHeight / 2;
-        if (bloom.maxIterations == 0 || bloom.intensity <= 0f || height < bloom.downscaleLimit * 2 || width < bloom.downscaleLimit * 2)
+        if (bloom.maxIterations == 0 || bloom.intensity <= 0f || height < bloom.downscaleLimits * 2 || width < bloom.downscaleLimits * 2)
         {
             // Draw(sourceId, BuiltinRenderTextureType.CameraTarget, Pass.Copy);
             // cmb.EndSample("Bloom");
@@ -115,7 +115,7 @@ public partial class PostFXStack
         int i;
         for (i = 0; i < bloom.maxIterations; i++)
         {
-            if (height < bloom.downscaleLimit || width < bloom.downscaleLimit)
+            if (height < bloom.downscaleLimits || width < bloom.downscaleLimits)
             {
                 break;
             }
@@ -135,7 +135,7 @@ public partial class PostFXStack
         
         Pass combinePass, finalPass;
         float finalIntensity;
-        if (bloom.mode == BloomSettings.Mode.Additive)
+        if (bloom.mode == PostFXSettings.BloomSettings.Mode.Additive)
         {
             combinePass = finalPass = Pass.BloomAdd;
             cmb.SetGlobalFloat(bloomIntensityId, 1f);
