@@ -72,7 +72,7 @@ public class PostFXSettings : ScriptableObject
         colorFilter = Color.white
     };
 
-    public ColorAdjustmentsSettings ColorAjustments => colorAdjustments;
+    public ColorAdjustmentsSettings ColorAdjustments => colorAdjustments;
     
     [Serializable]
     public struct WhiteBalanceSettings

@@ -224,7 +224,7 @@ public partial class PostFXStack
 
     void ConfigureColorAdjustments()
     {
-        ColorAdjustmentsSettings colorAdjustments = postFXSettings.ColorAjustments;
+        ColorAdjustmentsSettings colorAdjustments = postFXSettings.ColorAdjustments;
         cmb.SetGlobalVector(colorAdjustmentsId, new Vector4(Mathf.Pow(2f, colorAdjustments.postExposure), colorAdjustments.contrast * 0.01f + 1f, colorAdjustments.hueShift * (1f / 360f), colorAdjustments.saturation * 0.01f + 1f));
         cmb.SetGlobalColor(colorFilterId, colorAdjustments.colorFilter.linear);
     }
