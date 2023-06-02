@@ -88,7 +88,7 @@ public partial class PostFXStack
     bool DoBloom(int sourceId)
     {
         // cmb.BeginSample("Bloom");
-        PostFXSettings.BloomSettings bloom = postFXSettings.Bloom;
+        BloomSettings bloom = postFXSettings.Bloom;
         int width = camera.pixelWidth / 2, height = camera.pixelHeight / 2;
         if (bloom.maxIterations == 0 || bloom.intensity <= 0f || height < bloom.downscaleLimits * 2 || width < bloom.downscaleLimits * 2)
         {
@@ -135,7 +135,7 @@ public partial class PostFXStack
         
         Pass combinePass, finalPass;
         float finalIntensity;
-        if (bloom.mode == PostFXSettings.BloomSettings.Mode.Additive)
+        if (bloom.mode == BloomSettings.Mode.Additive)
         {
             combinePass = finalPass = Pass.BloomAdd;
             cmb.SetGlobalFloat(bloomIntensityId, 1f);
