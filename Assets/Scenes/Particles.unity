@@ -162,7 +162,7 @@ ParticleSystemRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 10308, guid: 0000000000000000f000000000000000, type: 0}
+  - {fileID: 2100000, guid: f0e6c0ebb15c84346826623712d501fd, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -1543,7 +1543,7 @@ ParticleSystem:
         m_NumAlphaKeys: 2
   UVModule:
     serializedVersion: 2
-    enabled: 0
+    enabled: 1
     mode: 0
     timeMode: 0
     fps: 30
@@ -1654,8 +1654,8 @@ ParticleSystem:
         m_PostInfinity: 2
         m_RotationOrder: 4
     speedRange: {x: 0, y: 1}
-    tilesX: 1
-    tilesY: 1
+    tilesX: 4
+    tilesY: 4
     animationType: 0
     rowIndex: 0
     cycles: 1
@@ -5221,8 +5221,8 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1962241027}
-  m_LocalRotation: {x: -0.3072499, y: -0.0059148595, z: 0.0020558026, w: -0.9516083}
-  m_LocalPosition: {x: 0.3600899, y: 9.395253, z: -15.819496}
+  m_LocalRotation: {x: -0.4737979, y: 0.09592247, z: -0.051813968, w: -0.87385917}
+  m_LocalPosition: {x: 1.0058885, y: 9.419792, z: -3.1991935}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
