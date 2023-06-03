@@ -39,7 +39,7 @@ Material:
     - _CutOff: 0.5
     - _Distortion: 1
     - _DistortionBlend: 0
-    - _DistortionStrength: 0.07
+    - _DistortionStrength: 0.2
     - _DstBlend: 10
     - _FlipbookBlending: 1
     - _NearFade: 1
