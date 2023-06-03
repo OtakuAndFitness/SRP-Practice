@@ -37,10 +37,20 @@ public partial class CameraRenderer
     static CameraSettings defaultCameraSettings = new CameraSettings();
 
     Material material;
+    Texture2D missingTexture;
+
+    static bool copyTextureSupported = SystemInfo.copyTextureSupport > CopyTextureSupport.None;
 
     public CameraRenderer(Shader shader)
     {
         material = CoreUtils.CreateEngineMaterial(shader);
+        missingTexture = new Texture2D(1, 1)
+        {
+            hideFlags = HideFlags.HideAndDontSave,
+            name = "Missing"
+        };
+        missingTexture.SetPixel(0,0,Color.white * 0.5f);
+        missingTexture.Apply();
     }
 
     public void Render(ScriptableRenderContext context, Camera camera, CustomRenderPipelineAsset.CameraBufferSettings cameraBufferSettings, bool useDynamicBatching, bool useGPUInstancing, bool useLightPerObject, ShadowSettings shadowSettings, PostFXSettings postFXSettings, int colorLUTResolution)
@@ -142,6 +152,7 @@ public partial class CameraRenderer
         //设置相机清除状态
         cmb.ClearRenderTarget(ccfs<=CameraClearFlags.Depth,ccfs == CameraClearFlags.Color,ccfs == CameraClearFlags.Color ? camera.backgroundColor.linear : Color.clear);
         cmb.BeginSample(SampleName);
+        cmb.SetGlobalTexture(depthTextureId, missingTexture);
         ExecuteBuffer();//为了采样
     }
 
@@ -187,11 +198,11 @@ public partial class CameraRenderer
 
     }
 
-    void Draw(RenderTargetIdentifier from, RenderTargetIdentifier to)
+    void Draw(RenderTargetIdentifier from, RenderTargetIdentifier to, bool isDepth = false)
     {
         cmb.SetGlobalTexture(sourceTextureId, from);
         cmb.SetRenderTarget(to, RenderBufferLoadAction.DontCare, RenderBufferStoreAction.Store);
-        cmb.DrawProcedural(Matrix4x4.identity, material, 0, MeshTopology.Triangles, 3);
+        cmb.DrawProcedural(Matrix4x4.identity, material, isDepth ? 1 : 0, MeshTopology.Triangles, 3);
     }
 
     void CopyAttachments()
@@ -200,7 +211,17 @@ public partial class CameraRenderer
         {
             cmb.GetTemporaryRT(depthTextureId, camera.pixelWidth, camera.pixelHeight, 32, FilterMode.Point, RenderTextureFormat.Depth);
         }
-        cmb.CopyTexture(depthAttachmentId, depthTextureId);
+
+        if (copyTextureSupported)
+        {
+            cmb.CopyTexture(depthAttachmentId, depthTextureId);
+
+        }
+        else
+        {
+            Draw(depthAttachmentId, depthTextureId, true);
+            cmb.SetRenderTarget(colorAttachmentId, RenderBufferLoadAction.Load, RenderBufferStoreAction.Store, depthAttachmentId, RenderBufferLoadAction.Load, RenderBufferStoreAction.Store);
+        }
         ExecuteBuffer();
     }
 
@@ -230,5 +251,6 @@ public partial class CameraRenderer
     public void Dispose()
     {
         CoreUtils.Destroy(material);
+        CoreUtils.Destroy(missingTexture);
     }
 }

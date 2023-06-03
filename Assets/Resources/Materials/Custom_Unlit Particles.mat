@@ -12,6 +12,7 @@ Material:
   m_ValidKeywords:
   - _FLIPBOOK_BLENDING
   - _NEAR_FADE
+  - _SOFT_PARTICLES
   - _VERTEX_COLORS
   m_InvalidKeywords: []
   m_LightmapFlags: 4
@@ -36,6 +37,9 @@ Material:
     - _NearFade: 1
     - _NearFadeDistance: 1
     - _NearFadeRange: 1
+    - _SoftParticles: 1
+    - _SoftParticlesDistance: 3.19
+    - _SoftParticlesRange: 3.04
     - _SrcBlend: 5
     - _VertexColors: 1
     - _ZWrite: 0
