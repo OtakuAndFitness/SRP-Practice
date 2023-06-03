@@ -10,9 +10,9 @@ public partial class CustomRenderPipeline : RenderPipeline
     ShadowSettings shadowSettings;
     PostFXSettings postFXSettings;
     int colorLUTResolution;
-    CustomRenderPipelineAsset.CameraBufferSettings cameraBufferSettings;
+    CameraBufferSettings cameraBufferSettings;
     
-    public CustomRenderPipeline(CustomRenderPipelineAsset.CameraBufferSettings cameraBufferSettings, bool useDynamicBatching, bool useGPUInstancing, bool useSRPBatcher, bool useLightsPerObject, ShadowSettings shadowSettings, PostFXSettings postFXSettings, int colorLUTResolution, Shader cameraRendererShader)
+    public CustomRenderPipeline(CameraBufferSettings cameraBufferSettings, bool useDynamicBatching, bool useGPUInstancing, bool useSRPBatcher, bool useLightsPerObject, ShadowSettings shadowSettings, PostFXSettings postFXSettings, int colorLUTResolution, Shader cameraRendererShader)
     {
         this.cameraBufferSettings = cameraBufferSettings;
         this.useDynamicBatching = useDynamicBatching;

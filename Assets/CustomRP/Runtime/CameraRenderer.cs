@@ -82,7 +82,7 @@ public partial class CameraRenderer
         ExecuteBuffer();//为了采样
     }
 
-    public void Render(ScriptableRenderContext context, Camera camera, CustomRenderPipelineAsset.CameraBufferSettings cameraBufferSettings, bool useDynamicBatching, bool useGPUInstancing, bool useLightPerObject, ShadowSettings shadowSettings, PostFXSettings postFXSettings, int colorLUTResolution)
+    public void Render(ScriptableRenderContext context, Camera camera, CameraBufferSettings cameraBufferSettings, bool useDynamicBatching, bool useGPUInstancing, bool useLightPerObject, ShadowSettings shadowSettings, PostFXSettings postFXSettings, int colorLUTResolution)
     {
         this.context = context;
         this.camera = camera;
@@ -93,7 +93,7 @@ public partial class CameraRenderer
         // useDepthTexture = true;
         if (camera.cameraType == CameraType.Reflection)
         {
-            useColorTexture = cameraBufferSettings.copyColor;
+            useColorTexture = cameraBufferSettings.CopyColorReflection;
             useDepthTexture = cameraBufferSettings.copyDepthReflection;
         }
         else

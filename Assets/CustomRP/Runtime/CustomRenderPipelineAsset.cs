@@ -19,13 +19,6 @@ public partial class CustomRenderPipelineAsset : RenderPipelineAsset
 
     [SerializeField]
     Shader cameraRendererShader = default;
-    
-    [Serializable]
-    public struct CameraBufferSettings
-    {
-        public bool allowHDR;
-        public bool copyColor, CopyColorReflection, copyDepth, copyDepthReflection;
-    }
 
     [SerializeField] 
     CameraBufferSettings cameraBuffer = new CameraBufferSettings()
