@@ -16,7 +16,7 @@ public class CameraSettings
 
     public PostFXSettings postFXSettings = default;
 
-    public bool copyDepth = true;
+    public bool copyColor = true, copyDepth = true;
     
     [Serializable]
     public struct FinalBlendMode

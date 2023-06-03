@@ -4,9 +4,9 @@
 #define INPUT_PROP(name) UNITY_ACCESS_INSTANCED_PROP(UnityPerMaterial, name)
 
 TEXTURE2D(_BaseMap);
+TEXTURE2D(_DistortionMap);
 SAMPLER(sampler_BaseMap);
 
-TEXTURE2D(_EmissionMap);
 
 UNITY_INSTANCING_BUFFER_START(UnityPerMaterial)
     UNITY_DEFINE_INSTANCED_PROP(float4, _BaseColor)
@@ -18,6 +18,8 @@ UNITY_INSTANCING_BUFFER_START(UnityPerMaterial)
     UNITY_DEFINE_INSTANCED_PROP(float, _NearFadeRange)
     UNITY_DEFINE_INSTANCED_PROP(float, _SoftParticlesDistance)
     UNITY_DEFINE_INSTANCED_PROP(float, _SoftParticlesRange)
+    UNITY_DEFINE_INSTANCED_PROP(float, _DistortionStrength)
+    UNITY_DEFINE_INSTANCED_PROP(float, _DistortionBlend)
 UNITY_INSTANCING_BUFFER_END(UnityPerMaterial)
 
 struct InputConfig
@@ -70,6 +72,21 @@ float4 GetBase(InputConfig config)
     }
     float4 color = INPUT_PROP(_BaseColor);
     return map * color * config.color;
+}
+
+float2 GetDistortion(InputConfig config)
+{
+    float4 distortion = SAMPLE_TEXTURE2D(_DistortionMap, sampler_BaseMap, config.baseUV);
+    if (config.flipbookBlending)
+    {
+        distortion = lerp(distortion, SAMPLE_TEXTURE2D(_DistortionMap, sampler_BaseMap, config.flipbookUVB.xy), config.flipbookUVB.z);
+    }
+    return DecodeNormal(distortion, INPUT_PROP(_DistortionStrength)).xy;
+}
+
+float GetDistortionBlend(InputConfig config)
+{
+    return INPUT_PROP(_DistortionBlend);
 }
 
 float GetCutOff()

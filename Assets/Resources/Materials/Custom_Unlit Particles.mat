@@ -10,6 +10,7 @@ Material:
   m_Name: Custom_Unlit Particles
   m_Shader: {fileID: 4800000, guid: 5c6fa937936dc1a4f9468fb9aa7e1ee0, type: 3}
   m_ValidKeywords:
+  - _DISTORTION
   - _FLIPBOOK_BLENDING
   - _NEAR_FADE
   - _SOFT_PARTICLES
@@ -28,18 +29,25 @@ Material:
         m_Texture: {fileID: 2800000, guid: 5868cd82e2280a04d9be3d10286e7a4e, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
+    - _DistortionMap:
+        m_Texture: {fileID: 2800000, guid: acbbd0ad7f03aee40a6e224b2aee0e35, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
     m_Ints: []
     m_Floats:
     - _Clipping: 0
     - _CutOff: 0.5
+    - _Distortion: 1
+    - _DistortionBlend: 0
+    - _DistortionStrength: 0.07
     - _DstBlend: 10
     - _FlipbookBlending: 1
     - _NearFade: 1
     - _NearFadeDistance: 1
     - _NearFadeRange: 1
     - _SoftParticles: 1
-    - _SoftParticlesDistance: 3.19
-    - _SoftParticlesRange: 3.04
+    - _SoftParticlesDistance: 0
+    - _SoftParticlesRange: 1
     - _SrcBlend: 5
     - _VertexColors: 1
     - _ZWrite: 0

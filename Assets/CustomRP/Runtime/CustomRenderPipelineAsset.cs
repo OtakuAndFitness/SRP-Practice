@@ -24,7 +24,7 @@ public partial class CustomRenderPipelineAsset : RenderPipelineAsset
     public struct CameraBufferSettings
     {
         public bool allowHDR;
-        public bool copyDepth, copyDepthReflections;
+        public bool copyColor, CopyColorReflection, copyDepth, copyDepthReflection;
     }
 
     [SerializeField] 

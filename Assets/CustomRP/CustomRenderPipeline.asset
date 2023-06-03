@@ -35,6 +35,8 @@ MonoBehaviour:
   cameraRendererShader: {fileID: 4800000, guid: aa6fb3461ba528f4d92d15cadae5ecea, type: 3}
   cameraBuffer:
     allowHDR: 1
+    copyColor: 1
+    CopyColorReflection: 0
     copyDepth: 1
-    copyDepthReflections: 0
+    copyDepthReflection: 0
   colorLutResolution: 32

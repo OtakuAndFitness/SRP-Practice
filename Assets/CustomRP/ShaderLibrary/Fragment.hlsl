@@ -2,6 +2,7 @@
 #define FRAGMENT_INCLUDED
 
 TEXTURE2D(_CameraDepthTexture);
+TEXTURE2D(_CameraColorTexture);
 
 struct Fragment
 {
@@ -20,6 +21,12 @@ Fragment GetFragment(float4 positionSS)
     f.bufferDepth = SAMPLE_DEPTH_TEXTURE_LOD(_CameraDepthTexture, sampler_point_clamp, f.screenUV, 0);
     f.bufferDepth = IsOrthographicCamera() ? OrthographicDepthBufferToLinear(f.bufferDepth) : LinearEyeDepth(f.bufferDepth, _ZBufferParams);
     return f;
+}
+
+float4 GetBufferColor(Fragment fragment, float2 uvOffset = float2(0.0,0.0))
+{
+    float2 uv = fragment.screenUV + uvOffset;
+    return SAMPLE_TEXTURE2D_LOD(_CameraColorTexture, sampler_linear_clamp, uv, 0);
 }
 
 #endif

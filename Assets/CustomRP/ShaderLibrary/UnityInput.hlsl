@@ -32,17 +32,16 @@ CBUFFER_START(UnityPerDraw)
     float4 unity_SpecCube0_HDR;
     real4 unity_LightData;
     real4 unity_LightIndices[2];
-    float4 unity_OrthoParams;
-    float4 _ProjectionParams;
-    float4 _ScreenParams;
-    float4 _ZBufferParams;
 CBUFFER_END
 
 float4x4 unity_MatrixV;
 float4x4 unity_MatrixVP;
 float4x4 glstate_matrix_projection;
 float3 _WorldSpaceCameraPos;
-
+float4 unity_OrthoParams;
+float4 _ProjectionParams;
+float4 _ScreenParams;
+float4 _ZBufferParams;
 
 
 #endif
