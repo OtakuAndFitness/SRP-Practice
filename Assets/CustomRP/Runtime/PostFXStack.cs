@@ -130,8 +130,8 @@ public partial class PostFXStack
         int width, height;
         if (bloom.ignoreRenderScale)
         {
-            width = camera.pixelWidth;
-            height = camera.pixelHeight;
+            width = camera.pixelWidth / 2;
+            height = camera.pixelHeight / 2;
         }
         else
         {
