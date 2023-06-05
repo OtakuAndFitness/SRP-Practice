@@ -12,6 +12,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 67f71b7da8c37407e8f7b679e300b6a5, type: 3}
   m_Name: CustomRenderPipeline
   m_EditorClassIdentifier: 
+  cameraBuffer:
+    allowHDR: 1
+    copyColor: 1
+    CopyColorReflection: 0
+    copyDepth: 1
+    copyDepthReflection: 0
+    renderScale: 1
+    bicubicRescaling: 1
   useDynamicBatching: 0
   useGPUInstancing: 1
   useSRPBatcher: 1
@@ -33,10 +41,4 @@ MonoBehaviour:
       filter: 2
   postFXSettings: {fileID: 11400000, guid: fbb03f604d2911a46874498c7dd420c2, type: 2}
   cameraRendererShader: {fileID: 4800000, guid: aa6fb3461ba528f4d92d15cadae5ecea, type: 3}
-  cameraBuffer:
-    allowHDR: 1
-    copyColor: 1
-    CopyColorReflection: 0
-    copyDepth: 1
-    copyDepthReflection: 0
   colorLutResolution: 32

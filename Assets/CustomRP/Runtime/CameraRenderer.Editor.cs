@@ -43,6 +43,7 @@ partial class CameraRenderer
         {
             //切到Scene窗口绘制东西
             ScriptableRenderContext.EmitWorldGeometryForSceneView(camera);
+            useScaledRendering = false;
         }
     }
 

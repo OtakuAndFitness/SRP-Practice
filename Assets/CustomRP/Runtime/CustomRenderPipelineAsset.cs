@@ -9,6 +9,13 @@ using UnityEngine.Rendering;
 public partial class CustomRenderPipelineAsset : RenderPipelineAsset
 {
     [SerializeField] 
+    CameraBufferSettings cameraBuffer = new CameraBufferSettings()
+    {
+        allowHDR = true,
+        renderScale = 1f
+    };
+    
+    [SerializeField] 
     bool useDynamicBatching = true, useGPUInstancing = true, useSRPBatcher = true, useLightsPerObject = true;
 
     [SerializeField] 
@@ -20,12 +27,6 @@ public partial class CustomRenderPipelineAsset : RenderPipelineAsset
     [SerializeField]
     Shader cameraRendererShader = default;
 
-    [SerializeField] 
-    CameraBufferSettings cameraBuffer = new CameraBufferSettings()
-    {
-        allowHDR = true
-    };
-    
     public enum ColorLUTResolution
     {
         _16 = 16,
