@@ -146,14 +146,25 @@ Shader "Hidden/Custom/Post FX Stack"
         }
         
         Pass{
-            Name "Final"
+            Name "Apply Color Grading"
             
             Blend [_FinalSrcBlend] [_FinalDstBlend]
-            
+
             HLSLPROGRAM
             #pragma target 3.5
             #pragma vertex DefaultPassVertex
-            #pragma fragment FinalPassFragment
+            #pragma fragment ApplyColorGradingPassFragment
+            ENDHLSL
+        }
+        
+        Pass{
+            Name "Apply Color Grading With Luma"
+
+            HLSLPROGRAM
+            #pragma target 3.5
+            #pragma vertex DefaultPassVertex
+            #pragma fragment ApplyColorGradingWithLumaPassFragment
+            #include "FXAAPass.hlsl"
             ENDHLSL
         }
         
@@ -169,7 +180,32 @@ Shader "Hidden/Custom/Post FX Stack"
             ENDHLSL
         }
         
+        Pass{
+            Name "FXAA"
+            
+            Blend [_FinalSrcBlend] [_FinalDstBlend]
+            
+            HLSLPROGRAM
+            #pragma target 3.5
+            #pragma vertex DefaultPassVertex
+            #pragma fragment FXAAPassFragment
+            #include "FXAAPass.hlsl"
+            ENDHLSL
+        }
         
+        Pass{
+            Name "FXAA With Luma"
+            
+            Blend [_FinalSrcBlend] [_FinalDstBlend]
+            
+            HLSLPROGRAM
+            #pragma target 3.5
+            #pragma vertex DefaultPassVertex
+            #pragma fragment FXAAPassFragment
+            #define FXAA_ALPHA_CONTAINS_LUMA
+            #include "FXAAPass.hlsl"
+            ENDHLSL
+        }
     }
 //    CustomEditor "CustomShaderGUI"
 

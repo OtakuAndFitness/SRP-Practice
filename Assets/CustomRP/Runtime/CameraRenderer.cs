@@ -142,7 +142,8 @@ public partial class CameraRenderer
         ExecuteBuffer();
         //设置光照信息，包含阴影信息，但阴影自己有个脚本来处理
         lighting.Setup(context,crs,shadowSettings, useLightPerObject, cameraSettings.maskLights ? cameraSettings.renderingLayerMask : -1);
-        postFXStack.Setup(context, camera, bufferSize, postFXSettings, useHDR, colorLUTResolution, cameraSettings.finalBlendMode, cameraBufferSettings.bicubicRescaling);
+        cameraBufferSettings.fxaa.enabled &= cameraSettings.allowFXAA;
+        postFXStack.Setup(context, camera, bufferSize, postFXSettings,cameraSettings.keepAlpha, useHDR, colorLUTResolution, cameraSettings.finalBlendMode, cameraBufferSettings.bicubicRescaling, cameraBufferSettings.fxaa);
         cmb.EndSample(SampleName);
         
         Setup();

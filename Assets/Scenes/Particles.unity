@@ -6896,8 +6896,10 @@ MonoBehaviour:
     maskLights: 1
     renderSscaleMode: 0
     renderScale: 1
-    overridePostFX: 1
+    overridePostFX: 0
     postFXSettings: {fileID: 0}
+    allowFXAA: 1
+    keepAlpha: 1
     finalBlendMode:
       source: 1
       destination: 0
