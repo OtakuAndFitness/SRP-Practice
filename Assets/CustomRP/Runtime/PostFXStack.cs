@@ -68,6 +68,8 @@ public partial class PostFXStack
         finalResultId = Shader.PropertyToID("_FinalResult"),
         finalSrcBlendId = Shader.PropertyToID("_FinalSrcBlend"),
         finalDstBlendId = Shader.PropertyToID("_FinalDstBlend");
+
+    int fxaaConfigId = Shader.PropertyToID("_FXAAConfig");
             
     int bloomPyramidId, colorLUTResolution;
     
@@ -313,6 +315,7 @@ public partial class PostFXStack
         cmb.SetGlobalFloat(finalDstBlendId,0f);
         if (fxaa.enabled)
         {
+            cmb.SetGlobalVector(fxaaConfigId, new Vector4(fxaa.fixedThreshold, fxaa.relativeThreshold, fxaa.subpixelBlending));
             cmb.GetTemporaryRT(colorGradingResultId, bufferSize.x, bufferSize.y, 0, FilterMode.Bilinear, RenderTextureFormat.Default);
             Draw(sourceId, colorGradingResultId, keepAlpha ? Pass.ApplyColorGrading : Pass.ApplyColorGradingWithLuma);
         }
