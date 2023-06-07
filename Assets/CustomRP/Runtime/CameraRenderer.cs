@@ -24,7 +24,7 @@ public partial class CameraRenderer
     static ShaderTagId unlitId = new ShaderTagId("SRPDefaultUnlit");
     static ShaderTagId litId = new ShaderTagId("CustomLight");
 
-    private static int
+    static int
         colorAttachmentId = Shader.PropertyToID("_CameraColorAttachment"),
         depthAttachmentId = Shader.PropertyToID("_CameraDepthAttachment"),
         colorTextureId = Shader.PropertyToID("_CameraColorTexture"),
@@ -69,7 +69,7 @@ public partial class CameraRenderer
         //得到相机清除状态
         CameraClearFlags ccfs = camera.clearFlags;
 
-        useIntermediateBuffer = useColorTexture || useDepthTexture || postFXStack.isActive || useScaledRendering;
+        useIntermediateBuffer = useColorTexture || useDepthTexture || postFXStack.IsActive || useScaledRendering;
         if (useIntermediateBuffer)
         {
             if (ccfs > CameraClearFlags.Color)
@@ -155,7 +155,7 @@ public partial class CameraRenderer
         
         //绘制Gizmos
         DrawGizmosBeforeFX();
-        if (postFXStack.isActive)
+        if (postFXStack.IsActive)
         {
             postFXStack.Render(colorAttachmentId);
         }

@@ -83,7 +83,7 @@ public partial class PostFXStack
 
     CameraSettings.FinalBlendMode finalBlendMode;
 
-    public bool isActive => postFXSettings != null;
+    public bool IsActive => postFXSettings != null;
 
     Vector2Int bufferSize;
     
