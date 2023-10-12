@@ -18,7 +18,7 @@ public partial class CustomRenderPipeline
     }
 
 
-    static Lightmapping.RequestLightsDelegate lightDelegate =
+    private static Lightmapping.RequestLightsDelegate lightDelegate =
         (Light[] lights, NativeArray<LightDataGI> output) =>
         {
             var lightData = new LightDataGI();
@@ -40,6 +40,8 @@ public partial class CustomRenderPipeline
                     case LightType.Spot:
                         var spotLight = new SpotLight();
                         LightmapperUtils.Extract(light, ref spotLight);
+                        spotLight.innerConeAngle = light.innerSpotAngle * Mathf.Deg2Rad;
+                        spotLight.angularFalloff = AngularFalloffType.AnalyticAndInnerAngle;
                         lightData.Init(ref spotLight);
                         break;
                     case LightType.Area:

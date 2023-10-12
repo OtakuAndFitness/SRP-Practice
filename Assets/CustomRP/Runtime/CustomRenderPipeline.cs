@@ -30,9 +30,14 @@ public partial class CustomRenderPipeline : RenderPipeline
 
     protected override void Render(ScriptableRenderContext context, Camera[] cameras)
     {
-        foreach (var cam in cameras)
+        
+    }
+
+    protected override void Render(ScriptableRenderContext context, List<Camera> cameras)
+    {
+        for (int i = 0; i < cameras.Count; i++)
         {
-            renderer.Render(context,cam,cameraBufferSettings,useDynamicBatching,useGPUInstancing, useLightsPerObject, shadowSettings, postFXSettings, colorLUTResolution);
+            renderer.Render(context, cameras[i], cameraBufferSettings, useDynamicBatching, useGPUInstancing, useLightsPerObject, shadowSettings, postFXSettings, colorLUTResolution);
         }
     }
 }

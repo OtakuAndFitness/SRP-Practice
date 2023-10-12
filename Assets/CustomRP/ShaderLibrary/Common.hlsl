@@ -7,8 +7,8 @@
 
 #define UNITY_MATRIX_M unity_ObjectToWorld
 #define UNITY_MATRIX_I_M unity_WorldToObject
-#define UNITY_PREV_MATRIX_M   unity_MatrixPreviousM
-#define UNITY_PREV_MATRIX_I_M unity_MatrixPreviousMI
+#define UNITY_PREV_MATRIX_M   unity_prev_MatrixM
+#define UNITY_PREV_MATRIX_I_M unity_prev_MatrixIM
 #define UNITY_MATRIX_V unity_MatrixV
 #define UNITY_MATRIX_VP unity_MatrixVP
 #define UNITY_MATRIX_I_V unity_MatrixInvV
@@ -63,9 +63,9 @@ void ClipLOD(Fragment fragment, float fade)
 float3 DecodeNormal(float4 sample, float scale)
 {
 #if defined(UNITY_NO_DXT5nm)
-    return UnpackNormalRGB(sample, scale);
+    return normalize(UnpackNormalRGB(sample, scale));
 #else
-    return UnpackNormalmapRGorAG(sample, scale);
+    return normalize(UnpackNormalmapRGorAG(sample, scale));
 #endif
 }
 

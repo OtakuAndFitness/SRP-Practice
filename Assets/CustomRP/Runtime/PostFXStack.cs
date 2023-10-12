@@ -246,12 +246,14 @@ public partial class PostFXStack
         cmb.DrawProcedural(Matrix4x4.identity, postFXSettings.Material, (int)pass, MeshTopology.Triangles,3);
     }
     
+    static Rect fullViewRect = new Rect(0f, 0f, 1f, 1f);
+
     void DrawFinal(RenderTargetIdentifier from, Pass pass)
     {
         cmb.SetGlobalFloat(finalSrcBlendId, (float)finalBlendMode.source);
         cmb.SetGlobalFloat(finalDstBlendId, (float)finalBlendMode.destination);
         cmb.SetGlobalTexture(fxSoundId, from);
-        cmb.SetRenderTarget(BuiltinRenderTextureType.CameraTarget, finalBlendMode.destination == BlendMode.Zero ? RenderBufferLoadAction.DontCare : RenderBufferLoadAction.Load, RenderBufferStoreAction.Store);
+        cmb.SetRenderTarget(BuiltinRenderTextureType.CameraTarget, finalBlendMode.destination == BlendMode.Zero && camera.rect == fullViewRect ? RenderBufferLoadAction.DontCare : RenderBufferLoadAction.Load, RenderBufferStoreAction.Store);
         cmb.SetViewport(camera.pixelRect);
         cmb.DrawProcedural(Matrix4x4.identity, postFXSettings.Material, (int)pass, MeshTopology.Triangles,3);
     }

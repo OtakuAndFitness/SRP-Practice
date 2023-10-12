@@ -81,7 +81,7 @@ public partial class CameraRenderer
             cmb.SetRenderTarget(colorAttachmentId, RenderBufferLoadAction.DontCare, RenderBufferStoreAction.Store, depthAttachmentId, RenderBufferLoadAction.DontCare, RenderBufferStoreAction.Store);
         }
         //设置相机清除状态
-        cmb.ClearRenderTarget(ccfs<=CameraClearFlags.Depth,ccfs == CameraClearFlags.Color,ccfs == CameraClearFlags.Color ? camera.backgroundColor.linear : Color.clear);
+        cmb.ClearRenderTarget(ccfs<=CameraClearFlags.Depth,ccfs <= CameraClearFlags.Color,ccfs == CameraClearFlags.Color ? camera.backgroundColor.linear : Color.clear);
         cmb.BeginSample(SampleName);
         cmb.SetGlobalTexture(colorTextureId, missingTexture);
         cmb.SetGlobalTexture(depthTextureId, missingTexture);
@@ -236,12 +236,13 @@ public partial class CameraRenderer
         cmb.DrawProcedural(Matrix4x4.identity, material, isDepth ? 1 : 0, MeshTopology.Triangles, 3);
     }
 
+    static Rect fullViewRect = new Rect(0f, 0f, 1f, 1f);
     void DrawFinal(CameraSettings.FinalBlendMode finalBlendMode)
     {
         cmb.SetGlobalFloat(srcBlendId, (float)finalBlendMode.source);
         cmb.SetGlobalFloat(dstBlendId, (float)finalBlendMode.destination);
         cmb.SetGlobalTexture(sourceTextureId, colorAttachmentId);
-        cmb.SetRenderTarget(BuiltinRenderTextureType.CameraTarget, finalBlendMode.destination == BlendMode.Zero ? RenderBufferLoadAction.DontCare : RenderBufferLoadAction.Load, RenderBufferStoreAction.Store);
+        cmb.SetRenderTarget(BuiltinRenderTextureType.CameraTarget, finalBlendMode.destination == BlendMode.Zero && camera.rect == fullViewRect ? RenderBufferLoadAction.DontCare : RenderBufferLoadAction.Load, RenderBufferStoreAction.Store);
         cmb.SetViewport(camera.pixelRect);
         cmb.DrawProcedural(Matrix4x4.identity, material, 0, MeshTopology.Triangles, 3);
         cmb.SetGlobalFloat(srcBlendId, 1f);

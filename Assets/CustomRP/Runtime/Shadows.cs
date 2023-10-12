@@ -270,7 +270,7 @@ public class Shadows
     void RenderDirectionalShadows(int index, int split, int tileSize)
     {
         ShadowedDirectionalLight light = shadowedDirectionalLights[index];
-        ShadowDrawingSettings shadowDrawingSettings = new ShadowDrawingSettings(crs, light.visibleLightIndex)
+        ShadowDrawingSettings shadowDrawingSettings = new ShadowDrawingSettings(crs, light.visibleLightIndex, BatchCullingProjectionType.Orthographic)
         {
             useRenderingLayerMaskTest = true
         };
@@ -365,7 +365,7 @@ public class Shadows
     void RenderPointShadows(int index, int split, int tileSize)
     {
         ShadowedOtherLight light = shadowedOtherLights[index];
-        ShadowDrawingSettings shadowDrawingSettings = new ShadowDrawingSettings(crs, light.visibleLightIndex)
+        ShadowDrawingSettings shadowDrawingSettings = new ShadowDrawingSettings(crs, light.visibleLightIndex, BatchCullingProjectionType.Perspective)
         {
             useRenderingLayerMaskTest = true
         };
@@ -402,7 +402,7 @@ public class Shadows
     void RenderSpotShadows(int index, int split, int tileSize)
     {
         ShadowedOtherLight light = shadowedOtherLights[index];
-        ShadowDrawingSettings shadowDrawingSettings = new ShadowDrawingSettings(crs, light.visibleLightIndex)
+        ShadowDrawingSettings shadowDrawingSettings = new ShadowDrawingSettings(crs, light.visibleLightIndex, BatchCullingProjectionType.Perspective)
         {
             useRenderingLayerMaskTest = true
         };
