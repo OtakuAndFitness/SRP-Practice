@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Experimental.Rendering.RenderGraphModule;
 using UnityEngine.Rendering;
 
 public partial class CustomRenderPipeline : RenderPipeline
@@ -11,6 +12,7 @@ public partial class CustomRenderPipeline : RenderPipeline
     PostFXSettings postFXSettings;
     int colorLUTResolution;
     CameraBufferSettings cameraBufferSettings;
+    private readonly RenderGraph _renderGraph = new RenderGraph("Custom SRP Render Graph");
     
     public CustomRenderPipeline(CameraBufferSettings cameraBufferSettings, bool useDynamicBatching, bool useGPUInstancing, bool useSRPBatcher, bool useLightsPerObject, ShadowSettings shadowSettings, PostFXSettings postFXSettings, int colorLUTResolution, Shader cameraRendererShader)
     {
@@ -37,7 +39,8 @@ public partial class CustomRenderPipeline : RenderPipeline
     {
         for (int i = 0; i < cameras.Count; i++)
         {
-            renderer.Render(context, cameras[i], cameraBufferSettings, useDynamicBatching, useGPUInstancing, useLightsPerObject, shadowSettings, postFXSettings, colorLUTResolution);
+            renderer.Render(_renderGraph, context, cameras[i], cameraBufferSettings, useDynamicBatching, useGPUInstancing, useLightsPerObject, shadowSettings, postFXSettings, colorLUTResolution);
         }
+        _renderGraph.EndFrame();
     }
 }

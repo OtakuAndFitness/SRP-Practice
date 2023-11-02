@@ -8,11 +8,11 @@ using UnityEngine.Rendering;
 
 partial class CameraRenderer
 {
-    partial void DrawUnsupportShaders();
-    partial void DrawGizmosBeforeFX();
-    partial void DrawGizmosAfterFX();
+    // partial void DrawUnsupportedShaders();
+    // partial void DrawGizmosBeforeFX();
+    // partial void DrawGizmosAfterFX();
     partial void PrepareForSceneWindow();
-    partial void PrepareBuffer();
+    // partial void PrepareBuffer();
 
 #if UNITY_EDITOR
     private static ShaderTagId[] legacyShaderTagIds =
@@ -28,14 +28,14 @@ partial class CameraRenderer
 
     static Material errorMat;
 
-    private string SampleName { get; set; }
+    // private string SampleName { get; set; }
 
-    partial void PrepareBuffer()
-    {
-        Profiler.BeginSample("Editor Only");
-        cmb.name = SampleName = camera.name;
-        Profiler.EndSample();
-    }
+    // partial void PrepareBuffer()
+    // {
+    //     Profiler.BeginSample("Editor Only");
+    //     cmb.name = SampleName = camera.name;
+    //     Profiler.EndSample();
+    // }
 
     partial void PrepareForSceneWindow()
     {
@@ -47,36 +47,36 @@ partial class CameraRenderer
         }
     }
 
-    partial void DrawGizmosBeforeFX()
-    {
-        if (Handles.ShouldRenderGizmos())
-        {
-            if (useIntermediateBuffer)
-            {
-                Draw(depthAttachmentId, BuiltinRenderTextureType.CameraTarget, true);
-                ExecuteBuffer();
-            }
-            context.DrawGizmos(camera,GizmoSubset.PreImageEffects);
-        }
-    }
+    // partial void DrawGizmosBeforeFX()
+    // {
+    //     if (Handles.ShouldRenderGizmos())
+    //     {
+    //         if (useIntermediateBuffer)
+    //         {
+    //             Draw(depthAttachmentId, BuiltinRenderTextureType.CameraTarget, true);
+    //             ExecuteBuffer();
+    //         }
+    //         context.DrawGizmos(camera,GizmoSubset.PreImageEffects);
+    //     }
+    // }
     
-    partial void DrawGizmosAfterFX()
-    {
-        if (Handles.ShouldRenderGizmos())
-        {
-            if (postFXStack.IsActive)
-            {
-                Draw(depthAttachmentId, BuiltinRenderTextureType.CameraTarget, true);
-                ExecuteBuffer();
-            }
-            context.DrawGizmos(camera,GizmoSubset.PostImageEffects);
-        }
-    }
+    // partial void DrawGizmosAfterFX()
+    // {
+    //     if (Handles.ShouldRenderGizmos())
+    //     {
+    //         if (postFXStack.IsActive)
+    //         {
+    //             Draw(depthAttachmentId, BuiltinRenderTextureType.CameraTarget, true);
+    //             ExecuteBuffer();
+    //         }
+    //         context.DrawGizmos(camera,GizmoSubset.PostImageEffects);
+    //     }
+    // }
 
     /// <summary>
     /// 绘制SRP不支持的着色器类型
     /// </summary>
-    partial void DrawUnsupportShaders()
+    public void DrawUnsupportedShaders()
     {
         if (errorMat == null)
         {
@@ -97,8 +97,8 @@ partial class CameraRenderer
         //绘制不支持的ShaderTag类型的物体
         context.DrawRenderers(crs,ref dss, ref fss);
     }
-#else
-    const string SampleName = cmbName;
+// #else
+//     const string SampleName = cmbName;
 #endif
     
 }

@@ -70,6 +70,7 @@ public partial class CustomRenderPipeline
         base.Dispose(disposing);
         DisposeForEditor();
         renderer.Dispose();
+        _renderGraph.Cleanup();
     }
 
 #endif

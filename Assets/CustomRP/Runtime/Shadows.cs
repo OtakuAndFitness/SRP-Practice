@@ -7,16 +7,19 @@ using System.Collections;
 using System.Collections.Generic;
 using Unity.Collections;
 using UnityEngine;
+using UnityEngine.Experimental.Rendering.RenderGraphModule;
 using UnityEngine.Rendering;
 
 public class Shadows
 { 
-    const string cmbName = "Shadows";
+    // const string cmbName = "Shadows";
 
-    CommandBuffer cmb = new CommandBuffer()
-    {
-        name = cmbName
-    };
+    // CommandBuffer cmb = new CommandBuffer()
+    // {
+    //     name = cmbName
+    // };
+
+    private CommandBuffer _buffer;
 
     //可投射阴影的平行光数量
     const int maxShadowedDirectionalLightCount = 4, maxCascades = 4, maxShadowedOtherLightCount = 16;//最大级联数量
@@ -115,9 +118,10 @@ public class Shadows
     ShadowSettings shadowSettings;
     CullingResults crs;
 
-    public void Setup(ScriptableRenderContext context, CullingResults crs, ShadowSettings shadowSettings)
+    public void Setup(RenderGraphContext context, CullingResults crs, ShadowSettings shadowSettings)
     {
-        this.context = context;
+        _buffer = context.cmd;
+        this.context = context.renderContext;
         this.crs = crs;
         this.shadowSettings = shadowSettings;
         shadowedDirectionalLightCount = shadowedOtherLightCount = 0;
@@ -126,8 +130,8 @@ public class Shadows
 
     void ExecuteBuffer()
     {
-        context.ExecuteCommandBuffer(cmb);
-        cmb.Clear();
+        context.ExecuteCommandBuffer(_buffer);
+        _buffer.Clear();
     }
 
     public Vector4 ReserveDirectionalShadows(Light light, int visibleLightIndex)
@@ -205,7 +209,7 @@ public class Shadows
         }
         else
         {
-            cmb.GetTemporaryRT(dirShadowAtlasId, 1,1,32, FilterMode.Bilinear, RenderTextureFormat.Shadowmap);
+            _buffer.GetTemporaryRT(dirShadowAtlasId, 1,1,32, FilterMode.Bilinear, RenderTextureFormat.Shadowmap);
         }
         
         if (shadowedOtherLightCount > 0)
@@ -214,20 +218,20 @@ public class Shadows
         }
         else
         {
-            cmb.SetGlobalTexture(otherShadowAtlasId, dirShadowAtlasId);
+            _buffer.SetGlobalTexture(otherShadowAtlasId, dirShadowAtlasId);
         }
         
         //是否使用阴影模板
-        cmb.BeginSample(cmbName);
+        // cmb.BeginSample(cmbName);
         SetKeywords(shadowMaskKeywords, useShadowMask ? QualitySettings.shadowmaskMode == ShadowmaskMode.Shadowmask ? 0 : 1 : -1);
         //将级联数量和包围球数据发送到GPU
-        cmb.SetGlobalInt(cascadeCountId, shadowedDirectionalLightCount > 0 ? shadowSettings.directional.cascadeCount : 0);
+        _buffer.SetGlobalInt(cascadeCountId, shadowedDirectionalLightCount > 0 ? shadowSettings.directional.cascadeCount : 0);
         //阴影距离过渡相关数据发送GPU
         float f = 1f - shadowSettings.directional.cascadeFade;
-        cmb.SetGlobalVector(shadowDistanceFadeId, new Vector4(1f / shadowSettings.maxDistance, 1f / shadowSettings.distanceFade, 1f / (1f - f * f)));
+        _buffer.SetGlobalVector(shadowDistanceFadeId, new Vector4(1f / shadowSettings.maxDistance, 1f / shadowSettings.distanceFade, 1f / (1f - f * f)));
         //传递图集大小和纹素大小
-        cmb.SetGlobalVector(shadowAtlasSizeId, atlasSizes);
-        cmb.EndSample(cmbName);
+        _buffer.SetGlobalVector(shadowAtlasSizeId, atlasSizes);
+        // cmb.EndSample(cmbName);
         ExecuteBuffer();
     }
     
@@ -238,11 +242,11 @@ public class Shadows
         atlasSizes.x = atlasSize;
         atlasSizes.y = 1f / atlasSize;
         
-        cmb.GetTemporaryRT(dirShadowAtlasId, atlasSize, atlasSize, 32, FilterMode.Bilinear, RenderTextureFormat.Shadowmap);
-        cmb.SetRenderTarget(dirShadowAtlasId, RenderBufferLoadAction.DontCare,RenderBufferStoreAction.Store);
-        cmb.ClearRenderTarget(true,false,Color.clear);
-        cmb.SetGlobalFloat(shadowPancakingId, 1f);
-        cmb.BeginSample(cmbName);
+        _buffer.GetTemporaryRT(dirShadowAtlasId, atlasSize, atlasSize, 32, FilterMode.Bilinear, RenderTextureFormat.Shadowmap);
+        _buffer.SetRenderTarget(dirShadowAtlasId, RenderBufferLoadAction.DontCare,RenderBufferStoreAction.Store);
+        _buffer.ClearRenderTarget(true,false,Color.clear);
+        _buffer.SetGlobalFloat(shadowPancakingId, 1f);
+        _buffer.BeginSample("Directional Shadows");
         ExecuteBuffer();
         
         //要分割的图块大小和数量
@@ -255,15 +259,15 @@ public class Shadows
             RenderDirectionalShadows(i, split, tileSize);
         }
         
-        cmb.SetGlobalVectorArray(cascadeCullingSpheresId, cascadeCullingSpheres);
+        _buffer.SetGlobalVectorArray(cascadeCullingSpheresId, cascadeCullingSpheres);
         //级联数据发送GPU
-        cmb.SetGlobalVectorArray(cascadeDataId, cascadeData);
+        _buffer.SetGlobalVectorArray(cascadeDataId, cascadeData);
         //阴影转换矩阵传入GPU
-        cmb.SetGlobalMatrixArray(dirShadowMatricesId, dirShadowMatrices);
+        _buffer.SetGlobalMatrixArray(dirShadowMatricesId, dirShadowMatrices);
         //设置关键字
         SetKeywords(directionalFilterKeywords, (int)shadowSettings.directional.filter - 1);
         SetKeywords(cascadeBlendKeywords, (int)shadowSettings.directional.cascadeBlend - 1);
-        cmb.EndSample(cmbName);
+        _buffer.EndSample("Directional Shaodws");
         ExecuteBuffer();
     }
 
@@ -298,12 +302,12 @@ public class Shadows
             int tileIndex = tileOffset + i;
             dirShadowMatrices[tileIndex] = ConvertToAtlasMatrix(projectionMatrix * viewMatrix, SetTileViewPort(tileIndex, split, tileSize), tileScale);
             //设置视图投影矩阵
-            cmb.SetViewProjectionMatrices(viewMatrix,projectionMatrix);
-            cmb.SetGlobalDepthBias(0f,light.slopeScaleBias);
+            _buffer.SetViewProjectionMatrices(viewMatrix,projectionMatrix);
+            _buffer.SetGlobalDepthBias(0f,light.slopeScaleBias);
             //绘制阴影
             ExecuteBuffer();
             context.DrawShadows(ref shadowDrawingSettings);
-            cmb.SetGlobalDepthBias(0f,0f);
+            _buffer.SetGlobalDepthBias(0f,0f);
         }
     }
 
@@ -328,11 +332,11 @@ public class Shadows
         atlasSizes.z = atlasSize;
         atlasSizes.w = 1f / atlasSize;
         
-        cmb.GetTemporaryRT(otherShadowAtlasId, atlasSize, atlasSize, 32, FilterMode.Bilinear, RenderTextureFormat.Shadowmap);
-        cmb.SetRenderTarget(otherShadowAtlasId, RenderBufferLoadAction.DontCare,RenderBufferStoreAction.Store);
-        cmb.ClearRenderTarget(true,false,Color.clear);
-        cmb.SetGlobalFloat(shadowPancakingId, 0f);
-        cmb.BeginSample(cmbName);
+        _buffer.GetTemporaryRT(otherShadowAtlasId, atlasSize, atlasSize, 32, FilterMode.Bilinear, RenderTextureFormat.Shadowmap);
+        _buffer.SetRenderTarget(otherShadowAtlasId, RenderBufferLoadAction.DontCare,RenderBufferStoreAction.Store);
+        _buffer.ClearRenderTarget(true,false,Color.clear);
+        _buffer.SetGlobalFloat(shadowPancakingId, 0f);
+        _buffer.BeginSample("Other Shadows");
         ExecuteBuffer();
 
         //要分割的图块大小和数量
@@ -354,10 +358,10 @@ public class Shadows
             }
         }
         //阴影转换矩阵传入GPU
-        cmb.SetGlobalMatrixArray(otherShadowMatricesId, otherShadowMatrices);
-        cmb.SetGlobalVectorArray(otherShadowTilesId, otherShadowTiles);
+        _buffer.SetGlobalMatrixArray(otherShadowMatricesId, otherShadowMatrices);
+        _buffer.SetGlobalVectorArray(otherShadowTilesId, otherShadowTiles);
         SetKeywords(otherFilterKeywords, (int)shadowSettings.other.filter - 1);
-        cmb.EndSample(cmbName);
+        _buffer.EndSample("Other Shadows");
         ExecuteBuffer();
     }
     
@@ -387,13 +391,13 @@ public class Shadows
             SetOtherTileData(tileIndex, offset, tileScale, bias);
             otherShadowMatrices[tileIndex] = ConvertToAtlasMatrix(projectionMatrix * viewMatrix, offset, tileScale);
             //设置视图投影矩阵
-            cmb.SetViewProjectionMatrices(viewMatrix, projectionMatrix);
+            _buffer.SetViewProjectionMatrices(viewMatrix, projectionMatrix);
             //设置斜度比例偏差
-            cmb.SetGlobalDepthBias(0f, light.slopeScaleBias);
+            _buffer.SetGlobalDepthBias(0f, light.slopeScaleBias);
             //绘制阴影
             ExecuteBuffer();
             context.DrawShadows(ref shadowDrawingSettings);
-            cmb.SetGlobalDepthBias(0f,0f);
+            _buffer.SetGlobalDepthBias(0f,0f);
         }
 
     }
@@ -416,13 +420,13 @@ public class Shadows
         SetOtherTileData(index, offset, tileScale, bias);
         otherShadowMatrices[index] = ConvertToAtlasMatrix(projectionMatrix * viewMatrix, offset, tileScale);
         //设置视图投影矩阵
-        cmb.SetViewProjectionMatrices(viewMatrix, projectionMatrix);
+        _buffer.SetViewProjectionMatrices(viewMatrix, projectionMatrix);
         //设置斜度比例偏差
-        cmb.SetGlobalDepthBias(0f, light.slopeScaleBias);
+        _buffer.SetGlobalDepthBias(0f, light.slopeScaleBias);
         //绘制阴影
         ExecuteBuffer();
         context.DrawShadows(ref shadowDrawingSettings);
-        cmb.SetGlobalDepthBias(0f,0f);
+        _buffer.SetGlobalDepthBias(0f,0f);
     }
     
     //储存非定向光阴影图块数据
@@ -443,7 +447,7 @@ public class Shadows
         //计算图块索引的偏移量
         Vector2 offset = new Vector2(index % split, index / split);
         //设置渲染视口，拆分多个图块
-        cmb.SetViewport(new Rect(offset.x * tileSize, offset.y * tileSize, tileSize, tileSize));
+        _buffer.SetViewport(new Rect(offset.x * tileSize, offset.y * tileSize, tileSize, tileSize));
         return offset;
     }
     
@@ -483,21 +487,21 @@ public class Shadows
         {
             if (i == enableIndex)
             {
-                cmb.EnableShaderKeyword(keywords[i]);
+                _buffer.EnableShaderKeyword(keywords[i]);
             }
             else
             {
-                cmb.DisableShaderKeyword(keywords[i]);
+                _buffer.DisableShaderKeyword(keywords[i]);
             }
         }
     }
 
     public void Cleanup()
     {
-        cmb.ReleaseTemporaryRT(dirShadowAtlasId);
+        _buffer.ReleaseTemporaryRT(dirShadowAtlasId);
         if (shadowedOtherLightCount > 0)
         {
-            cmb.ReleaseTemporaryRT(otherShadowAtlasId);
+            _buffer.ReleaseTemporaryRT(otherShadowAtlasId);
         }
         ExecuteBuffer();
     }

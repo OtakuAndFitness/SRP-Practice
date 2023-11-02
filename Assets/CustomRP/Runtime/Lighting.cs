@@ -2,17 +2,20 @@ using System.Collections;
 using System.Collections.Generic;
 using Unity.Collections;
 using UnityEngine;
+using UnityEngine.Experimental.Rendering.RenderGraphModule;
 using UnityEngine.Rendering;
 
 public class Lighting
 { 
-    const string cmbName = "Lighting";
+    // const string cmbName = "Lighting";
 
-    CommandBuffer cmb = new CommandBuffer()
-    {
-        name = cmbName
-    };
+    // CommandBuffer cmb = new CommandBuffer()
+    // {
+    //     name = cmbName
+    // };
 
+    private CommandBuffer _buffer;
+    
     const int maxDirLightCount = 4, maxOtherLightCount = 64;
 
     static string lightsPerObjectKeyword = "_LIGHTS_PER_OBJECT";
@@ -47,18 +50,19 @@ public class Lighting
 
     Shadows shadows = new Shadows();
 
-    public void Setup(ScriptableRenderContext context, CullingResults crs, ShadowSettings shadowSettings, bool useLightsPerObject, int renderingLayerMask)
+    public void Setup(RenderGraphContext context, CullingResults crs, ShadowSettings shadowSettings, bool useLightsPerObject, int renderingLayerMask)
     {
+        _buffer = context.cmd;
         this.crs = crs;
-        cmb.BeginSample(cmbName);
+        // cmb.BeginSample(cmbName);
         //传递阴影数据
         shadows.Setup(context,crs,shadowSettings);
         //发送光源数据
         SetupLights(useLightsPerObject, renderingLayerMask);
         shadows.Render();
-        cmb.EndSample(cmbName);
-        context.ExecuteCommandBuffer(cmb);
-        cmb.Clear();
+        // cmb.EndSample(cmbName);
+        context.renderContext.ExecuteCommandBuffer(_buffer);
+        _buffer.Clear();
     }
 
     void SetupLights(bool useLightsPerObject, int renderingLayerMask)
@@ -124,22 +128,22 @@ public class Lighting
             Shader.DisableKeyword(lightsPerObjectKeyword);
         }
 
-        cmb.SetGlobalInt(dirLightCountId,dirLightCount);
+        _buffer.SetGlobalInt(dirLightCountId,dirLightCount);
         if (dirLightCount > 0)
         {
-            cmb.SetGlobalVectorArray(dirLightColorId,directionalColors);
-            cmb.SetGlobalVectorArray(dirLightDirectionsAndMasksId,dirLightDirectionsAndMasks);
-            cmb.SetGlobalVectorArray(dirLightShadowDataId, dirLightShadowData);
+            _buffer.SetGlobalVectorArray(dirLightColorId,directionalColors);
+            _buffer.SetGlobalVectorArray(dirLightDirectionsAndMasksId,dirLightDirectionsAndMasks);
+            _buffer.SetGlobalVectorArray(dirLightShadowDataId, dirLightShadowData);
         }
         
-        cmb.SetGlobalInt(otherLightCountId, otherLightCount);
+        _buffer.SetGlobalInt(otherLightCountId, otherLightCount);
         if (otherLightCount > 0)
         {
-            cmb.SetGlobalVectorArray(otherLightColorsId, otherLightColors);
-            cmb.SetGlobalVectorArray(otherLightPositionsId, otherLightPositions);
-            cmb.SetGlobalVectorArray(otherLightDirectionsAndMasksId, otherLightDirectionsAndMasks);
-            cmb.SetGlobalVectorArray(otherLightSpotAnglesId, otherLightSpotAngles);
-            cmb.SetGlobalVectorArray(otherLightShadowDataId, otherLightShadowData);
+            _buffer.SetGlobalVectorArray(otherLightColorsId, otherLightColors);
+            _buffer.SetGlobalVectorArray(otherLightPositionsId, otherLightPositions);
+            _buffer.SetGlobalVectorArray(otherLightDirectionsAndMasksId, otherLightDirectionsAndMasks);
+            _buffer.SetGlobalVectorArray(otherLightSpotAnglesId, otherLightSpotAngles);
+            _buffer.SetGlobalVectorArray(otherLightShadowDataId, otherLightShadowData);
         }
         
     }
