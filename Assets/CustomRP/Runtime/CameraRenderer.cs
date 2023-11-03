@@ -23,8 +23,8 @@ public partial class CameraRenderer
     
     //摄像机剔除结果
     CullingResults crs;
-    static ShaderTagId unlitId = new ShaderTagId("SRPDefaultUnlit");
-    static ShaderTagId litId = new ShaderTagId("CustomLight");
+    // static ShaderTagId unlitId = new ShaderTagId("SRPDefaultUnlit");
+    // static ShaderTagId litId = new ShaderTagId("CustomLight");
 
     public static int
         colorAttachmentId = Shader.PropertyToID("_CameraColorAttachment"),

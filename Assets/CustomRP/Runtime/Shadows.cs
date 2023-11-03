@@ -267,7 +267,7 @@ public class Shadows
         //设置关键字
         SetKeywords(directionalFilterKeywords, (int)shadowSettings.directional.filter - 1);
         SetKeywords(cascadeBlendKeywords, (int)shadowSettings.directional.cascadeBlend - 1);
-        _buffer.EndSample("Directional Shaodws");
+        _buffer.EndSample("Directional Shadows");
         ExecuteBuffer();
     }
 
