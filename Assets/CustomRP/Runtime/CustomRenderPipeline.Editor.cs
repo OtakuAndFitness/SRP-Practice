@@ -65,13 +65,5 @@ public partial class CustomRenderPipeline
         Lightmapping.ResetDelegate();   
     }
 
-    protected override void Dispose(bool disposing)
-    {
-        base.Dispose(disposing);
-        DisposeForEditor();
-        renderer.Dispose();
-        _renderGraph.Cleanup();
-    }
-
 #endif
 }

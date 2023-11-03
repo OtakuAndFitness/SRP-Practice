@@ -22,7 +22,7 @@ public partial class CustomRenderPipelineAsset : RenderPipelineAsset
     };
     
     [SerializeField] 
-    bool useDynamicBatching = true, useGPUInstancing = true, useSRPBatcher = true, useLightsPerObject = true;
+    bool useSRPBatcher = true, useLightsPerObject = true;
 
     [SerializeField] 
     ShadowSettings shadowSettings = default;
@@ -43,8 +43,15 @@ public partial class CustomRenderPipelineAsset : RenderPipelineAsset
     [SerializeField]
     ColorLUTResolution colorLutResolution = ColorLUTResolution._32;
     
+    [Header("Deprecated Settings")]
+    [SerializeField, Tooltip("Dynamic batching is no longer used.")]
+    bool useDynamicBatching;
+
+    [SerializeField, Tooltip("GPU instancing is always enabled.")]
+    bool useGPUInstancing;
+    
     protected override RenderPipeline CreatePipeline()
     {
-        return new CustomRenderPipeline(cameraBuffer,useDynamicBatching, useGPUInstancing, useSRPBatcher, useLightsPerObject, shadowSettings, postFXSettings, (int)colorLutResolution, cameraRendererShader);
+        return new CustomRenderPipeline(cameraBuffer, useSRPBatcher, useLightsPerObject, shadowSettings, postFXSettings, (int)colorLutResolution, cameraRendererShader);
     }
 }

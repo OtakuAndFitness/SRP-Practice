@@ -7,7 +7,7 @@ using UnityEngine;
 public struct CameraBufferSettings
 {
     public bool allowHDR;
-    public bool copyColor, CopyColorReflection, copyDepth, copyDepthReflection;
+    public bool copyColor, copyColorReflection, copyDepth, copyDepthReflection;
 
     [Range(CameraRenderer.renderScaleMin, CameraRenderer.renderScaleMax)] 
     public float renderScale;

@@ -91,7 +91,7 @@ public partial class CameraRenderer
         ExecuteBuffer();//为了采样
     }
 
-    public void Render(RenderGraph renderGraph, ScriptableRenderContext context, Camera camera, CameraBufferSettings cameraBufferSettings, bool useDynamicBatching, bool useGPUInstancing, bool useLightPerObject, ShadowSettings shadowSettings, PostFXSettings postFXSettings, int colorLUTResolution)
+    public void Render(RenderGraph renderGraph, ScriptableRenderContext context, Camera camera, CameraBufferSettings cameraBufferSettings, bool useLightsPerObject, ShadowSettings shadowSettings, PostFXSettings postFXSettings, int colorLUTResolution)
     {
         this.context = context;
         this.camera = camera;
@@ -114,7 +114,7 @@ public partial class CameraRenderer
         // useDepthTexture = true;
         if (camera.cameraType == CameraType.Reflection)
         {
-            useColorTexture = cameraBufferSettings.CopyColorReflection;
+            useColorTexture = cameraBufferSettings.copyColorReflection;
             useDepthTexture = cameraBufferSettings.copyDepthReflection;
         }
         else
@@ -189,6 +189,7 @@ public partial class CameraRenderer
             commandBuffer = CommandBufferPool.Get(),
             currentFrameIndex = Time.frameCount,
             executionName = cameraSampler.name,
+            rendererListCulling = true,
             scriptableRenderContext = context
         };
         _buffer = renderGraphParameters.commandBuffer;
@@ -199,14 +200,22 @@ public partial class CameraRenderer
             // builder.SetRenderFunc((CameraSettings data, RenderGraphContext context) => { });
             using var _ = new RenderGraphProfilingScope(renderGraph, cameraSampler);
             
-            LightingPass.Record(renderGraph, lighting, crs, shadowSettings, useLightPerObject, cameraSettings.maskLights ? cameraSettings.renderingLayerMask : -1);
+            LightingPass.Record(renderGraph, lighting, crs, shadowSettings, useLightsPerObject, cameraSettings.maskLights ? cameraSettings.renderingLayerMask : -1);
             
             SetupPass.Record(renderGraph, this);
             
-            VisibleGeometryPass.Record(renderGraph, this, useGPUInstancing, useGPUInstancing, useLightPerObject, cameraSettings.renderingLayerMask);
+            GeometryPass.Record(renderGraph, camera, crs, useLightsPerObject, cameraSettings.renderingLayerMask, true);
+
+            SkyboxPass.Record(renderGraph, camera);
+
+            if (useColorTexture || useDepthTexture)
+            {
+                CopyAttachmentsPass.Record(renderGraph, this);
+            }
+
+            GeometryPass.Record(renderGraph, camera, crs, useLightsPerObject, cameraSettings.renderingLayerMask, false);
             
-            //暴露srp不支持的shader
-            UnSupportedShadersPass.Record(renderGraph, this);
+            UnSupportedShadersPass.Record(renderGraph, camera, crs);
             
             if (postFXStack.IsActive)
             {
@@ -245,46 +254,46 @@ public partial class CameraRenderer
         context.ExecuteCommandBuffer(_buffer);
         _buffer.Clear();
     }
-    public void DrawVisibleGeometry(bool useDynamicBatching, bool useGPUInstancing, bool useLightsPerObject, int renderingLayerMask)
-    {
-        ExecuteBuffer();
-        
-        PerObjectData lightsPerObjectFlags = useLightsPerObject ? PerObjectData.LightData | PerObjectData.LightIndices : PerObjectData.None;
-        
-        SortingSettings sss = new SortingSettings()
-        {
-            criteria = SortingCriteria.CommonOpaque
-        };
-        //设置渲染的pass和排序模式
-        DrawingSettings dss = new DrawingSettings(unlitId,sss)
-        {
-            //设置渲染时批处理的使用状态
-            enableDynamicBatching = useDynamicBatching,
-            enableInstancing = useGPUInstancing,
-            perObjectData = PerObjectData.Lightmaps | PerObjectData.ShadowMask | PerObjectData.LightProbe | PerObjectData.OcclusionProbe | PerObjectData.LightProbeProxyVolume | PerObjectData.OcclusionProbeProxyVolume | PerObjectData.ReflectionProbes | lightsPerObjectFlags
-        };
-        //渲染CustomLit表示的pass块
-        dss.SetShaderPassName(1,litId);
-        //哪些类型的渲染队列会被渲染
-        FilteringSettings fss = new FilteringSettings(RenderQueueRange.opaque, renderingLayerMask: (uint)renderingLayerMask);
-        //先渲染不透明物体
-        context.DrawRenderers(crs,ref dss,ref fss);
-        
-        //再渲染天空盒
-        context.DrawSkybox(camera);
-        if (useColorTexture || useDepthTexture)
-        {
-            CopyAttachments();
-        }
-        
-        //最后渲染透明物体
-        sss.criteria = SortingCriteria.CommonTransparent;
-        dss.sortingSettings = sss;
-        fss.renderQueueRange = RenderQueueRange.transparent;
-        context.DrawRenderers(crs,ref dss,ref fss);
-
-
-    }
+    // public void DrawVisibleGeometry(bool useDynamicBatching, bool useGPUInstancing, bool useLightsPerObject, int renderingLayerMask)
+    // {
+    //     ExecuteBuffer();
+    //     
+    //     PerObjectData lightsPerObjectFlags = useLightsPerObject ? PerObjectData.LightData | PerObjectData.LightIndices : PerObjectData.None;
+    //     
+    //     SortingSettings sss = new SortingSettings()
+    //     {
+    //         criteria = SortingCriteria.CommonOpaque
+    //     };
+    //     //设置渲染的pass和排序模式
+    //     DrawingSettings dss = new DrawingSettings(unlitId,sss)
+    //     {
+    //         //设置渲染时批处理的使用状态
+    //         enableDynamicBatching = useDynamicBatching,
+    //         enableInstancing = useGPUInstancing,
+    //         perObjectData = PerObjectData.Lightmaps | PerObjectData.ShadowMask | PerObjectData.LightProbe | PerObjectData.OcclusionProbe | PerObjectData.LightProbeProxyVolume | PerObjectData.OcclusionProbeProxyVolume | PerObjectData.ReflectionProbes | lightsPerObjectFlags
+    //     };
+    //     //渲染CustomLit表示的pass块
+    //     dss.SetShaderPassName(1,litId);
+    //     //哪些类型的渲染队列会被渲染
+    //     FilteringSettings fss = new FilteringSettings(RenderQueueRange.opaque, renderingLayerMask: (uint)renderingLayerMask);
+    //     //先渲染不透明物体
+    //     context.DrawRenderers(crs,ref dss,ref fss);
+    //     
+    //     //再渲染天空盒
+    //     context.DrawSkybox(camera);
+    //     if (useColorTexture || useDepthTexture)
+    //     {
+    //         CopyAttachments();
+    //     }
+    //     
+    //     //最后渲染透明物体
+    //     sss.criteria = SortingCriteria.CommonTransparent;
+    //     dss.sortingSettings = sss;
+    //     fss.renderQueueRange = RenderQueueRange.transparent;
+    //     context.DrawRenderers(crs,ref dss,ref fss);
+    //
+    //
+    // }
 
     public void Draw(RenderTargetIdentifier from, RenderTargetIdentifier to, bool isDepth = false)
     {
@@ -306,8 +315,10 @@ public partial class CameraRenderer
         _buffer.SetGlobalFloat(dstBlendId, 0f);
     }
 
-    void CopyAttachments()
+    public void CopyAttachments()
     {
+        ExecuteBuffer();
+        
         if (useColorTexture)
         {
             _buffer.GetTemporaryRT(colorTextureId, bufferSize.x, bufferSize.y, 0, FilterMode.Bilinear, useHDR ? RenderTextureFormat.DefaultHDR : RenderTextureFormat.Default);
