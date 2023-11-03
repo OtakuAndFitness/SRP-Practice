@@ -46,7 +46,7 @@ Shader "Custom/Lit"
 
         Pass
         {
-            Tags{"LightMode"="CustomLight"}
+            Tags{"LightMode"="CustomLit"}
             //定义混合模式
             Blend [_SrcBlend][_DstBlend], One OneMinusSrcAlpha
             //是否写入深度
