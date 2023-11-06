@@ -25,7 +25,7 @@ public class GeometryPass
 
 	public static void Record(
 		RenderGraph renderGraph, Camera camera, CullingResults cullingResults,
-		bool useLightsPerObject, int renderingLayerMask, bool opaque)
+		bool useLightsPerObject, int renderingLayerMask, bool opaque, in CameraRenderTextures textures)
 	{
 		ProfilingSampler sampler = opaque ? _samplerOpaque : _samplerTransparent;
 
@@ -39,6 +39,20 @@ public class GeometryPass
 				renderingLayerMask = (uint)renderingLayerMask
 			}));
 
+		builder.ReadWriteTexture(textures.colorAttachment);
+		builder.ReadWriteTexture(textures.depthAttachment);
+		if (!opaque)
+		{
+			if (textures.colorCopy.IsValid())
+			{
+				builder.ReadTexture(textures.colorCopy);
+			}
+
+			if (textures.depthCopy.IsValid())
+			{
+				builder.ReadTexture(textures.depthCopy);
+			}
+		}
 		builder.SetRenderFunc<GeometryPass>((pass, context) => pass.Render(context));
 	}
 }

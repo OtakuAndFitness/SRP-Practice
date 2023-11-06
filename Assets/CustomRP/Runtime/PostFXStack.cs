@@ -120,7 +120,7 @@ public partial class PostFXStack
         ApplySceneViewState();
     }
 
-    public void Render(RenderGraphContext context, int sourceId)
+    public void Render(RenderGraphContext context, TextureHandle sourceId)
     {
         _buffer = context.cmd;
         // cmb.Blit(sourceId, BuiltinRenderTextureType.CameraTarget);
@@ -138,7 +138,7 @@ public partial class PostFXStack
         _buffer.Clear();
     }
     
-        bool DoBloom(int sourceId)
+    bool DoBloom(RenderTargetIdentifier sourceId)
     {
         // cmb.BeginSample("Bloom");
         BloomSettings bloom = postFXSettings.Bloom;
@@ -321,7 +321,7 @@ public partial class PostFXStack
 
     }
 
-    void DoFinal(int sourceId)
+    void DoFinal(RenderTargetIdentifier sourceId)
     {
         ConfigureColorAdjustments();
         ConfigureWhiteBalance();
