@@ -223,16 +223,16 @@ public class CameraRenderer
             
             CameraRenderTextures textures = SetupPass.Record(renderGraph, useIntermediateBuffer, useColorTexture, useDepthTexture, useHDR, bufferSize, camera);
             
+            //opaque objects pass
             GeometryPass.Record(renderGraph, camera, cullingResults, useLightsPerObject, cameraSettings.renderingLayerMask, true, textures);
 
             SkyboxPass.Record(renderGraph, camera, textures);
 
             CameraRendererCopier copier = new CameraRendererCopier(material, camera, cameraSettings.finalBlendMode);
-            // if (useColorTexture || useDepthTexture)
-            // {
-                CopyAttachmentsPass.Record(renderGraph, useColorTexture, useDepthTexture, copier, textures);
-            // }
+            
+            CopyAttachmentsPass.Record(renderGraph, useColorTexture, useDepthTexture, copier, textures);
 
+            //transparent objects pass
             GeometryPass.Record(renderGraph, camera, cullingResults, useLightsPerObject, cameraSettings.renderingLayerMask, false, textures);
             
             UnSupportedShadersPass.Record(renderGraph, camera, cullingResults);
