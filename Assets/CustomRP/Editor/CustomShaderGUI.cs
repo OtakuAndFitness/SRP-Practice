@@ -76,7 +76,7 @@ public class CustomShaderGUI : ShaderGUI
     }
 
     bool HasProperty(string name) => FindProperty(name, properties, false) != null;
-    private bool HasPremultipyAlpha => HasProperty("_PremultipyAlpha");
+    private bool HasPremultiplyAlpha => HasProperty("_PremultiplyAlpha");
 
     bool SetProperty(string name, float value)
     {
@@ -121,9 +121,9 @@ public class CustomShaderGUI : ShaderGUI
         set => SetProperty("_Clipping", "_CLIPPING", value);
     }
     
-    bool PremultipyAlpha
+    bool PremultiplyAlpha
     {
-        set => SetProperty("_PremultipyAlpha", "_PREMULTIPY_ALPHA", value);
+        set => SetProperty("_PremultiplyAlpha", "_PREMULTIPLY_ALPHA", value);
     }
 
     BlendMode SrcBlend
@@ -197,7 +197,7 @@ public class CustomShaderGUI : ShaderGUI
         {
             Clipping = false;
             Shadows = ShadowMode.On;
-            PremultipyAlpha = false;
+            PremultiplyAlpha = false;
             SrcBlend = BlendMode.One;
             DstBlend = BlendMode.Zero;
             ZWrite = true;
@@ -211,7 +211,7 @@ public class CustomShaderGUI : ShaderGUI
         {
             Clipping = true;
             Shadows = ShadowMode.Clip;
-            PremultipyAlpha = false;
+            PremultiplyAlpha = false;
             SrcBlend = BlendMode.One;
             DstBlend = BlendMode.Zero;
             ZWrite = true;
@@ -225,7 +225,7 @@ public class CustomShaderGUI : ShaderGUI
         {
             Clipping = false;
             Shadows = ShadowMode.Dither;
-            PremultipyAlpha = false;
+            PremultiplyAlpha = false;
             SrcBlend = BlendMode.SrcAlpha;
             DstBlend = BlendMode.OneMinusSrcAlpha;
             ZWrite = false;
@@ -235,11 +235,11 @@ public class CustomShaderGUI : ShaderGUI
     
     void PreAlpha()
     {
-        if (HasPremultipyAlpha && PresetButton("PremultipyAlpha"))
+        if (HasPremultiplyAlpha && PresetButton("PremultiplyAlpha"))
         {
             Clipping = false;
             Shadows = ShadowMode.Dither;
-            PremultipyAlpha = true;
+            PremultiplyAlpha = true;
             SrcBlend = BlendMode.One;
             DstBlend = BlendMode.OneMinusSrcAlpha;
             ZWrite = false;

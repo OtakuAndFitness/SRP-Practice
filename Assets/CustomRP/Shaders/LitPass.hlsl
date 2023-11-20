@@ -99,7 +99,7 @@ float4 LitPassFragment(Varyings input) : SV_TARGET
     //计算抖动值
     sf.dither = InterleavedGradientNoise(input.positionCS_SS.xy,0);
     sf.renderingLayerMask = asuint(unity_RenderingLayer.x);
-#if defined(_PREMULTIPY_ALPHA)
+#if defined(_PREMULTIPLY_ALPHA)
     BRDF brdf = GetBRDF(sf,true);
 #else
     BRDF brdf = GetBRDF(sf);

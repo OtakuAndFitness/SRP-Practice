@@ -6,7 +6,7 @@ Shader "Custom/Lit"
         _BaseMap("Main Texture", 2D) = "white"{}
         _CutOff("Cut Off",Range(0.0,1.0)) = 0.5
         [Toggle()] _Clipping("Alpha Clipping", Float) = 0
-        [Toggle(_PREMULTIPY_ALPHA)] _PremultipyAlpha("Premultipy Alpha", Float) = 0
+        [Toggle(_PREMULTIPLY_ALPHA)] _PremultiplyAlpha("Premultiply Alpha", Float) = 0
         [Toggle (_MASK_MAP)] _MaskMapToggle("Mask Map", Float) = 0
         [NoScaleOffset] _MaskMap("Mask Map", 2D) = "white"{}
         _Metallic ("_Metallic", Range(0,1)) = 0
@@ -57,7 +57,7 @@ Shader "Custom/Lit"
             #pragma shader_feature _MASK_MAP
             #pragma shader_feature _DETAIL_MAP
             #pragma shader_feature _RECEIVE_SHADOWS
-            #pragma shader_feature _PREMULTIPY_ALPHA
+            #pragma shader_feature _PREMULTIPLY_ALPHA
             #pragma multi_compile _ _DIRECTIONAL_PCF3 _DIRECTIONAL_PCF5 _DIRECTIONAL_PCF7
             #pragma multi_compile _ _OTHER_PCF3 _OTHER_PCF5 _OTHER_PCF7
             #pragma multi_compile _ _LIGHTS_PER_OBJECT
