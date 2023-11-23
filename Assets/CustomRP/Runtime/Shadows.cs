@@ -42,32 +42,32 @@ public class Shadows
     }
     
     //PCF滤波模式
-    static string[] 
+    static readonly GlobalKeyword[] 
         directionalFilterKeywords =
     {
-        "_DIRECTIONAL_PCF3",
-        "_DIRECTIONAL_PCF5",
-        "_DIRECTIONAL_PCF7",
+        GlobalKeyword.Create("_DIRECTIONAL_PCF3"),
+        GlobalKeyword.Create("_DIRECTIONAL_PCF5"),
+        GlobalKeyword.Create("_DIRECTIONAL_PCF7"),
     };
     
-    static string[] cascadeBlendKeywords =
+    static readonly GlobalKeyword[] cascadeBlendKeywords =
     {
-        "_CASCADE_BLEND_SOFT",
-        "_CASCADE_BLEND_DITHER"
+        GlobalKeyword.Create("_CASCADE_BLEND_SOFT"),
+        GlobalKeyword.Create("_CASCADE_BLEND_DITHER")
     };
 
-    static string[] shadowMaskKeywords =
+    static readonly GlobalKeyword[] shadowMaskKeywords =
     {
-        "_SHADOW_MASK_ALWAYS",
-        "_SHADOW_MASK_DISTANCE"
+        GlobalKeyword.Create("_SHADOW_MASK_ALWAYS"),
+        GlobalKeyword.Create("_SHADOW_MASK_DISTANCE")
     };
     
     //非定向光源的滤波模式
-    static string[] otherFilterKeywords =
+    static readonly GlobalKeyword[] otherFilterKeywords =
     {
-        "_OTHER_PCF3",
-        "_OTHER_PCF5",
-        "_OTHER_PCF7",
+        GlobalKeyword.Create("_OTHER_PCF3"),
+        GlobalKeyword.Create("_OTHER_PCF5"),
+            GlobalKeyword.Create("_OTHER_PCF7"),
     };
     
     bool useShadowMask;
@@ -118,10 +118,12 @@ public class Shadows
     ShadowSettings shadowSettings;
     CullingResults crs;
 
-    public void Setup(RenderGraphContext context, CullingResults crs, ShadowSettings shadowSettings)
+    private TextureHandle directionalAtlas, otherAtlas;
+
+    public void Setup(CullingResults crs, ShadowSettings shadowSettings)
     {
-        _buffer = context.cmd;
-        this.context = context.renderContext;
+        // _buffer = context.cmd;
+        // this.context = context.renderContext;
         this.crs = crs;
         this.shadowSettings = shadowSettings;
         shadowedDirectionalLightCount = shadowedOtherLightCount = 0;
@@ -201,25 +203,31 @@ public class Shadows
 
     }
 
-    public void Render()
+    public void Render(RenderGraphContext context)
     {
+        _buffer = context.cmd;
+        this.context = context.renderContext;
+        
         if (shadowedDirectionalLightCount > 0)
         {
             RenderDirectionalShadows();
         }
-        else
-        {
-            _buffer.GetTemporaryRT(dirShadowAtlasId, 1,1,32, FilterMode.Bilinear, RenderTextureFormat.Shadowmap);
-        }
+        // else
+        // {
+        //     _buffer.GetTemporaryRT(dirShadowAtlasId, 1,1,32, FilterMode.Bilinear, RenderTextureFormat.Shadowmap);
+        // }
         
         if (shadowedOtherLightCount > 0)
         {
             RenderOtherShadows();
         }
-        else
-        {
-            _buffer.SetGlobalTexture(otherShadowAtlasId, dirShadowAtlasId);
-        }
+        // else
+        // {
+        //     _buffer.SetGlobalTexture(otherShadowAtlasId, dirShadowAtlasId);
+        // }
+        
+        _buffer.SetGlobalTexture(dirShadowAtlasId, directionalAtlas);
+        _buffer.SetGlobalTexture(otherShadowAtlasId, otherAtlas);
         
         //是否使用阴影模板
         // cmb.BeginSample(cmbName);
@@ -242,8 +250,8 @@ public class Shadows
         atlasSizes.x = atlasSize;
         atlasSizes.y = 1f / atlasSize;
         
-        _buffer.GetTemporaryRT(dirShadowAtlasId, atlasSize, atlasSize, 32, FilterMode.Bilinear, RenderTextureFormat.Shadowmap);
-        _buffer.SetRenderTarget(dirShadowAtlasId, RenderBufferLoadAction.DontCare,RenderBufferStoreAction.Store);
+        // _buffer.GetTemporaryRT(dirShadowAtlasId, atlasSize, atlasSize, 32, FilterMode.Bilinear, RenderTextureFormat.Shadowmap);
+        _buffer.SetRenderTarget(directionalAtlas, RenderBufferLoadAction.DontCare,RenderBufferStoreAction.Store);
         _buffer.ClearRenderTarget(true,false,Color.clear);
         _buffer.SetGlobalFloat(shadowPancakingId, 1f);
         _buffer.BeginSample("Directional Shadows");
@@ -332,8 +340,8 @@ public class Shadows
         atlasSizes.z = atlasSize;
         atlasSizes.w = 1f / atlasSize;
         
-        _buffer.GetTemporaryRT(otherShadowAtlasId, atlasSize, atlasSize, 32, FilterMode.Bilinear, RenderTextureFormat.Shadowmap);
-        _buffer.SetRenderTarget(otherShadowAtlasId, RenderBufferLoadAction.DontCare,RenderBufferStoreAction.Store);
+        // _buffer.GetTemporaryRT(otherShadowAtlasId, atlasSize, atlasSize, 32, FilterMode.Bilinear, RenderTextureFormat.Shadowmap);
+        _buffer.SetRenderTarget(otherAtlas, RenderBufferLoadAction.DontCare,RenderBufferStoreAction.Store);
         _buffer.ClearRenderTarget(true,false,Color.clear);
         _buffer.SetGlobalFloat(shadowPancakingId, 0f);
         _buffer.BeginSample("Other Shadows");
@@ -480,30 +488,52 @@ public class Shadows
     }
     
     //设置关键字开启哪种PCF滤波模式
-    void SetKeywords(string[] keywords, int enableIndex)
+    void SetKeywords(GlobalKeyword[] keywords, int enableIndex)
     {
         // int enableIndex = (int)(shadowSettings.directional.filter - 1);
         for (int i = 0; i < keywords.Length; i++)
         {
-            if (i == enableIndex)
-            {
-                _buffer.EnableShaderKeyword(keywords[i]);
-            }
-            else
-            {
-                _buffer.DisableShaderKeyword(keywords[i]);
-            }
+            // if (i == enableIndex)
+            // {
+            //     _buffer.EnableShaderKeyword(keywords[i]);
+            // }
+            // else
+            // {
+            //     _buffer.DisableShaderKeyword(keywords[i]);
+            // }
+            _buffer.SetKeyword(keywords[i], i == enableIndex);
         }
     }
 
-    public void Cleanup()
+    // public void Cleanup()
+    // {
+    //     _buffer.ReleaseTemporaryRT(dirShadowAtlasId);
+    //     if (shadowedOtherLightCount > 0)
+    //     {
+    //         _buffer.ReleaseTemporaryRT(otherShadowAtlasId);
+    //     }
+    //     ExecuteBuffer();
+    // }
+    
+    public ShadowTextures GetRenderTextures(RenderGraph renderGraph, RenderGraphBuilder builder)
     {
-        _buffer.ReleaseTemporaryRT(dirShadowAtlasId);
-        if (shadowedOtherLightCount > 0)
+        int atlasSize = (int)shadowSettings.directional.atlasSize;
+        TextureDesc desc = new TextureDesc(atlasSize, atlasSize)
         {
-            _buffer.ReleaseTemporaryRT(otherShadowAtlasId);
-        }
-        ExecuteBuffer();
+            depthBufferBits = DepthBits.Depth32,
+            isShadowMap = true,
+            name = "Directional ShadowAtlas"
+        };
+        directionalAtlas = shadowedDirectionalLightCount > 0
+            ? builder.WriteTexture(renderGraph.CreateTexture(desc))
+            : renderGraph.defaultResources.defaultShadowTexture;
+        atlasSize = (int)shadowSettings.other.atlasSize;
+        desc.width = desc.height = atlasSize;
+        desc.name = "Other Shadow Atlas";
+        otherAtlas = shadowedOtherLightCount > 0
+            ? builder.WriteTexture(renderGraph.CreateTexture(desc))
+            : renderGraph.defaultResources.defaultShadowTexture;
+        return new ShadowTextures(directionalAtlas, otherAtlas);
     }
 }
 

@@ -36,7 +36,7 @@ public class CameraRenderer
         // dstBlendId = Shader.PropertyToID("_CameraDstBlend"),
         // bufferSizeId = Shader.PropertyToID("_CameraBufferSize");
 
-    Lighting lighting = new Lighting();
+    // Lighting lighting = new Lighting();
 
     PostFXStack postFXStack = new PostFXStack();
 
@@ -219,12 +219,12 @@ public class CameraRenderer
             // builder.SetRenderFunc((CameraSettings data, RenderGraphContext context) => { });
             using var _ = new RenderGraphProfilingScope(renderGraph, cameraSampler);
             
-            LightingPass.Record(renderGraph, lighting, cullingResults, shadowSettings, useLightsPerObject, cameraSettings.maskLights ? cameraSettings.renderingLayerMask : -1);
+            ShadowTextures shadowTextures = LightingPass.Record(renderGraph, cullingResults, shadowSettings, useLightsPerObject, cameraSettings.maskLights ? cameraSettings.renderingLayerMask : -1);
             
             CameraRenderTextures textures = SetupPass.Record(renderGraph, useIntermediateBuffer, useColorTexture, useDepthTexture, useHDR, bufferSize, camera);
             
             //opaque objects pass
-            GeometryPass.Record(renderGraph, camera, cullingResults, useLightsPerObject, cameraSettings.renderingLayerMask, true, textures);
+            GeometryPass.Record(renderGraph, camera, cullingResults, useLightsPerObject, cameraSettings.renderingLayerMask, true, textures, shadowTextures);
 
             SkyboxPass.Record(renderGraph, camera, textures);
 
@@ -233,7 +233,7 @@ public class CameraRenderer
             CopyAttachmentsPass.Record(renderGraph, useColorTexture, useDepthTexture, copier, textures);
 
             //transparent objects pass
-            GeometryPass.Record(renderGraph, camera, cullingResults, useLightsPerObject, cameraSettings.renderingLayerMask, false, textures);
+            GeometryPass.Record(renderGraph, camera, cullingResults, useLightsPerObject, cameraSettings.renderingLayerMask, false, textures, shadowTextures);
             
             UnSupportedShadersPass.Record(renderGraph, camera, cullingResults);
             
@@ -248,7 +248,7 @@ public class CameraRenderer
             GizmosPass.Record(renderGraph, useIntermediateBuffer, copier, textures);
         }
         
-        lighting.Cleanup();
+        // lighting.Cleanup();
         
         //context发送的渲染命令都是缓冲的，所以要通过submit来提交命令
         // Submit();
