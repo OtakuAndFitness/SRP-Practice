@@ -21,8 +21,8 @@ public class Shadows
 
     private CommandBuffer _buffer;
 
-    //可投射阴影的平行光数量
-    const int maxShadowedDirectionalLightCount = 4, maxCascades = 4, maxShadowedOtherLightCount = 16;//最大级联数量
+    //可投射阴影的平行光数量, 最大级联数量, 可投射阴影的其他光源数量
+    const int maxShadowedDirectionalLightCount = 4, maxCascades = 4, maxShadowedOtherLightCount = 16;
 
     struct ShadowedDirectionalLight
     {
@@ -78,7 +78,7 @@ public class Shadows
     ShadowedOtherLight[] shadowedOtherLights =
         new ShadowedOtherLight[maxShadowedOtherLightCount];
 
-    //已储存的可投射阴影的平行光数量
+    //已储存的可投射阴影的平行光数量， 已储存的可投射阴影的其他光源数量
     int shadowedDirectionalLightCount, shadowedOtherLightCount;
 
     static int

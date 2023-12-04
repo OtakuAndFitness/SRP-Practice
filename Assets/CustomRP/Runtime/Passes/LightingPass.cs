@@ -122,6 +122,7 @@ public class LightingPass
 
         if (useLightsPerObject)
         {
+            //看不见的灯光设置indexMap的值为-1
             for (; i < indexMap.Length; i++)
             {
                 indexMap[i] = -1;
@@ -190,6 +191,7 @@ public class LightingPass
     {
         CommandBuffer buffer = context.cmd;
         buffer.SetKeyword(lightsPerObjectKeyword, useLightsPerObject);
+        
         buffer.SetGlobalInt(dirLightCountId,dirLightCount);
         if (dirLightCount > 0)
         {

@@ -5,6 +5,7 @@ using UnityEngine;
 using UnityEngine.Experimental.GlobalIllumination;
 using LightType = UnityEngine.LightType;
 
+//为了烘焙时使用正确的光衰减，核心是lightData.falloff = FalloffType.InverseSquared
 public partial class CustomRenderPipeline
 {
     partial void InitializeForEditor();
