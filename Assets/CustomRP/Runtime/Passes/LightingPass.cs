@@ -226,6 +226,7 @@ public class LightingPass
         // pass._renderingLayerMask = renderingLayerMask;
         pass.Setup(cullingResults, shadowSettings, useLightPerObject, renderingLayerMask);
         builder.SetRenderFunc<LightingPass>((pass, context) => pass.Render(context));
+        //需要设置GPU数据，不能被cull
         builder.AllowPassCulling(false);
         return pass.shadows.GetRenderTextures(renderGraph, builder);
     }

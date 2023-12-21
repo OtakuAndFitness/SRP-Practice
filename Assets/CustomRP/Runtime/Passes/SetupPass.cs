@@ -5,6 +5,7 @@ using UnityEngine.Experimental.Rendering;
 using UnityEngine.Experimental.Rendering.RenderGraphModule;
 using UnityEngine.Rendering;
 
+//设置color & depth textures，类似urp的color & depth图
 public class SetupPass
 {
     private static readonly ProfilingSampler _sampler = new("Setup");
@@ -78,6 +79,7 @@ public class SetupPass
             colorAttachment = depthAttachment = pass._colorAttachment = pass._depthAttachment =
                 builder.WriteTexture(renderGraph.ImportBackbuffer(BuiltinRenderTextureType.CameraTarget));
         }
+        //需要clear render target，该pass不能被cull
         builder.AllowPassCulling(false);
         builder.SetRenderFunc<SetupPass>((pass, context) => pass.Render(context));
 
