@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using UnityEditor;
 using UnityEngine;
 using UnityEngine.Rendering;
 
@@ -20,7 +21,7 @@ public class PostFXSettings : ScriptableObject
         [Range(0f,16f)]
         public int maxIterations;
         [Min(1f)]
-        public int downscaleLimits;
+        public int downscaleLimit;
 
         public bool bicubicUpsampling;
         [Min(0f)]
@@ -168,4 +169,15 @@ public class PostFXSettings : ScriptableObject
         }
     }
 
+    public bool AreApplicableTo(Camera camera)
+    {
+#if UNITY_EDITOR
+        if (camera.cameraType == CameraType.SceneView &&
+            !SceneView.currentDrawingSceneView.sceneViewState.showImageEffects)
+        {
+            return false;
+        }
+#endif
+        return camera.cameraType <= CameraType.SceneView;
+    }
 }

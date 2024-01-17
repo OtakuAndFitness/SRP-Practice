@@ -131,6 +131,8 @@ public class CameraRenderer
             postFXSettings = cameraSettings.postFXSettings;
         }
 
+        bool hasActivePostFX = postFXSettings != null && postFXSettings.AreApplicableTo(camera);
+
         float renderScale = cameraSettings.GetRenderScale(cameraBufferSettings.renderScale);
         bool useScaledRendering = renderScale < 0.99f || renderScale > 1.01f;
         
@@ -157,7 +159,9 @@ public class CameraRenderer
         scriptableCullingParameters.shadowDistance = Mathf.Min(shadowSettings.maxDistance, camera.farClipPlane);
         CullingResults cullingResults = context.Cull(ref scriptableCullingParameters);
 
-        bool useHDR = cameraBufferSettings.allowHDR && camera.allowHDR;
+        // bool useHDR = cameraBufferSettings.allowHDR && camera.allowHDR;
+        cameraBufferSettings.allowHDR &= camera.allowHDR;
+        
         Vector2Int bufferSize = default;
         if (useScaledRendering)
         {
@@ -177,7 +181,7 @@ public class CameraRenderer
         //设置光照信息，包含阴影信息，但阴影自己有个脚本来处理
         // lighting.Setup(context,crs,shadowSettings, useLightPerObject, cameraSettings.maskLights ? cameraSettings.renderingLayerMask : -1);
         cameraBufferSettings.fxaa.enabled &= cameraSettings.allowFXAA;
-        postFXStack.Setup(camera, bufferSize, postFXSettings,cameraSettings.keepAlpha, useHDR, colorLUTResolution, cameraSettings.finalBlendMode, cameraBufferSettings.bicubicRescaling, cameraBufferSettings.fxaa);
+        // postFXStack.Setup(camera, bufferSize, postFXSettings,cameraSettings.keepAlpha, cameraBufferSettings.allowHDR, colorLUTResolution, cameraSettings.finalBlendMode, cameraBufferSettings.bicubicRescaling, cameraBufferSettings.fxaa);
         // cmb.EndSample(SampleName);
         
         // Setup();
@@ -201,7 +205,7 @@ public class CameraRenderer
         // }
         // DrawGizmosAfterFX();
         
-        bool useIntermediateBuffer = useColorTexture || useDepthTexture || postFXStack.IsActive || useScaledRendering;
+        bool useIntermediateBuffer = useColorTexture || useDepthTexture || hasActivePostFX || useScaledRendering;
 
         RenderGraphParameters renderGraphParameters = new RenderGraphParameters()
         {
@@ -221,7 +225,7 @@ public class CameraRenderer
             
             ShadowTextures shadowTextures = LightingPass.Record(renderGraph, cullingResults, shadowSettings, useLightsPerObject, cameraSettings.maskLights ? cameraSettings.renderingLayerMask : -1);
             
-            CameraRenderTextures textures = SetupPass.Record(renderGraph, useIntermediateBuffer, useColorTexture, useDepthTexture, useHDR, bufferSize, camera);
+            CameraRenderTextures textures = SetupPass.Record(renderGraph, useIntermediateBuffer, useColorTexture, useDepthTexture, cameraBufferSettings.allowHDR, bufferSize, camera);
             
             //opaque objects pass
             GeometryPass.Record(renderGraph, camera, cullingResults, useLightsPerObject, cameraSettings.renderingLayerMask, true, textures, shadowTextures);
@@ -237,9 +241,14 @@ public class CameraRenderer
             
             UnSupportedShadersPass.Record(renderGraph, camera, cullingResults);
             
-            if (postFXStack.IsActive)
+            if (hasActivePostFX)
             {
-                PostFXPass.Record(renderGraph, postFXStack, textures);
+                postFXStack.CameraBufferSettings = cameraBufferSettings;
+                postFXStack.BufferSize = bufferSize;
+                postFXStack.Camera = camera;
+                postFXStack.FinalBlendMode = cameraSettings.finalBlendMode;
+                postFXStack.Settings = postFXSettings;
+                PostFXPass.Record(renderGraph, postFXStack, colorLUTResolution, cameraSettings.keepAlpha, textures);
             }else if (useIntermediateBuffer)
             {
                 FinalPass.Record(renderGraph, copier, textures);

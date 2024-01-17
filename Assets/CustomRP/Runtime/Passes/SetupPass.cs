@@ -81,7 +81,7 @@ public class SetupPass
         }
         //需要clear render target，该pass不能被cull
         builder.AllowPassCulling(false);
-        builder.SetRenderFunc<SetupPass>((pass, context) => pass.Render(context));
+        builder.SetRenderFunc<SetupPass>(static (pass, context) => pass.Render(context));
 
         return new CameraRenderTextures(colorAttachment, depthAttachment, colorCopy, depthCopy);
     }
