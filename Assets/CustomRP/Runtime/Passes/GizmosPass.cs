@@ -33,7 +33,7 @@ public class GizmosPass
 #endif
 
     [Conditional("UNITY_EDITOR")]
-    public static void Record(RenderGraph renderGraph, bool useIntermediateBuffer, CameraRendererCopier copier, in CameraRenderTextures textures)
+    public static void Record(RenderGraph renderGraph, bool useIntermediateBuffer, CameraRendererCopier copier, in CameraRendererTextures textures)
     {
     #if UNITY_EDITOR
         if (Handles.ShouldRenderGizmos())

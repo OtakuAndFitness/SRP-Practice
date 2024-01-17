@@ -25,7 +25,7 @@ public class GeometryPass
 
 	public static void Record(
 		RenderGraph renderGraph, Camera camera, CullingResults cullingResults,
-		bool useLightsPerObject, int renderingLayerMask, bool opaque, in CameraRenderTextures textures, in ShadowTextures shadowTextures)
+		bool useLightsPerObject, int renderingLayerMask, bool opaque, in CameraRendererTextures textures, in ShadowTextures shadowTextures)
 	{
 		ProfilingSampler sampler = opaque ? _samplerOpaque : _samplerTransparent;
 

@@ -38,7 +38,7 @@ public class CopyAttachmentsPass
 		buffer.Clear();
 	}
 
-	public static void Record(RenderGraph renderGraph, bool copyColor, bool copyDepth, CameraRendererCopier copier, in CameraRenderTextures textures)
+	public static void Record(RenderGraph renderGraph, bool copyColor, bool copyDepth, CameraRendererCopier copier, in CameraRendererTextures textures)
 	{
 		if (copyColor || copyDepth)
 		{

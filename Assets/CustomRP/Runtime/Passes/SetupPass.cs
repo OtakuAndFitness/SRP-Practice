@@ -38,7 +38,7 @@ public class SetupPass
         cmd.Clear();
     }
 
-    public static CameraRenderTextures Record(RenderGraph renderGraph, bool useIntermediateAttachments, bool copyColor, bool copyDepth, bool useHDR, Vector2Int attachmentSize, Camera camera)
+    public static CameraRendererTextures Record(RenderGraph renderGraph, bool useIntermediateAttachments, bool copyColor, bool copyDepth, bool useHDR, Vector2Int attachmentSize, Camera camera)
     {
         using RenderGraphBuilder builder = renderGraph.AddRenderPass(_sampler.name, out SetupPass pass, _sampler);
         // pass._renderer = renderer;
@@ -83,7 +83,7 @@ public class SetupPass
         builder.AllowPassCulling(false);
         builder.SetRenderFunc<SetupPass>(static (pass, context) => pass.Render(context));
 
-        return new CameraRenderTextures(colorAttachment, depthAttachment, colorCopy, depthCopy);
+        return new CameraRendererTextures(colorAttachment, depthAttachment, colorCopy, depthCopy);
     }
 
 }

@@ -87,7 +87,7 @@ public class BloomPass
         _stack.Draw(buffer, pyramid[fromId], bloomResult, finalPass);
     }
 
-    public static TextureHandle Record(RenderGraph renderGraph, PostFXStack stack, in CameraRenderTextures textures)
+    public static TextureHandle Record(RenderGraph renderGraph, PostFXStack stack, in CameraRendererTextures textures)
     {
         PostFXSettings.BloomSettings bloomSettings = stack.Settings.Bloom;
         Vector2Int size = (bloomSettings.ignoreRenderScale ? new Vector2Int(stack.Camera.pixelWidth, stack.Camera.pixelHeight) : stack.BufferSize) / 2;

@@ -84,7 +84,7 @@ public class PostFXPass
         buffer.Clear();
     }
 
-    public static void Record(RenderGraph renderGraph, PostFXStack postFXStack, int colorLUTResolution, bool keepAlpha, in CameraRenderTextures textures)
+    public static void Record(RenderGraph renderGraph, PostFXStack postFXStack, int colorLUTResolution, bool keepAlpha, in CameraRendererTextures textures)
     {
         using var _ = new RenderGraphProfilingScope(renderGraph, groupSampler);
 

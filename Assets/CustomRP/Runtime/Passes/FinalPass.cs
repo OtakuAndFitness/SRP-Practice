@@ -23,7 +23,7 @@ public class FinalPass
       buffer.Clear();
    }
 
-   public static void Record(RenderGraph renderGraph, CameraRendererCopier copier, in CameraRenderTextures textures)
+   public static void Record(RenderGraph renderGraph, CameraRendererCopier copier, in CameraRendererTextures textures)
    {
       using RenderGraphBuilder builder = renderGraph.AddRenderPass(_sampler.name, out FinalPass pass, _sampler);
       // pass._renderer = renderer;

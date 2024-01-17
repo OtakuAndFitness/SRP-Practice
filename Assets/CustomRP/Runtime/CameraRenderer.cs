@@ -225,7 +225,7 @@ public class CameraRenderer
             
             ShadowTextures shadowTextures = LightingPass.Record(renderGraph, cullingResults, shadowSettings, useLightsPerObject, cameraSettings.maskLights ? cameraSettings.renderingLayerMask : -1);
             
-            CameraRenderTextures textures = SetupPass.Record(renderGraph, useIntermediateBuffer, useColorTexture, useDepthTexture, cameraBufferSettings.allowHDR, bufferSize, camera);
+            CameraRendererTextures textures = SetupPass.Record(renderGraph, useIntermediateBuffer, useColorTexture, useDepthTexture, cameraBufferSettings.allowHDR, bufferSize, camera);
             
             //opaque objects pass
             GeometryPass.Record(renderGraph, camera, cullingResults, useLightsPerObject, cameraSettings.renderingLayerMask, true, textures, shadowTextures);
