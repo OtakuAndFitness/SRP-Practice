@@ -84,17 +84,17 @@ public class ColorLUTPass
         ConfigureSplitToning(buffer, settings);
         ConfigureChannelMixer(buffer, settings);
         ConfigureShadowsMidtonesHighlights(buffer, settings);
-
+    
         int lutHeight = colorLUTResolution;
         int lutWidth = lutHeight * lutHeight;
         
         buffer.SetGlobalVector(colorGradingLUTParametersId, new Vector4(lutHeight, 0.5f / lutWidth, 0.5f / lutHeight, lutHeight / (lutHeight - 1f)));
-
+    
         ToneMappingSettings.Mode mode = settings.ToneMapping.mode;
         Pass pass = Pass.ColorGradingNone + (int)mode;
         buffer.SetGlobalFloat(colorGradingLUTInLogCId, _stack.CameraBufferSettings.allowHDR && pass != Pass.ColorGradingNone ? 1f : 0f);
         _stack.Draw(buffer, colorLUT, pass);
-        buffer.SetGlobalVector(colorGradingLUTParametersId, new Vector4(1f / lutWidth, 1f / lutWidth, lutHeight - 1f));
+        buffer.SetGlobalVector(colorGradingLUTParametersId, new Vector4(1f / lutWidth, 1f / lutHeight, lutHeight - 1f));
         buffer.SetGlobalTexture(colorGradingLUTId, colorLUT);
     }
 
